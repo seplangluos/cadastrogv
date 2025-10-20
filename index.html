@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Cadastro Técnico - Prefeitura</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Sistema de Cadastro Técnico</title>
     <style>
         :root {
   /* Primitive Color Tokens */
@@ -42,14 +41,14 @@
   --color-orange-400-rgb: 230, 129, 97;
 
   /* Background color tokens (Light Mode) */
-  --color-bg-1: rgba(59, 130, 246, 0.08); /* Light blue */
-  --color-bg-2: rgba(245, 158, 11, 0.08); /* Light yellow */
-  --color-bg-3: rgba(34, 197, 94, 0.08); /* Light green */
-  --color-bg-4: rgba(239, 68, 68, 0.08); /* Light red */
-  --color-bg-5: rgba(147, 51, 234, 0.08); /* Light purple */
-  --color-bg-6: rgba(249, 115, 22, 0.08); /* Light orange */
-  --color-bg-7: rgba(236, 72, 153, 0.08); /* Light pink */
-  --color-bg-8: rgba(6, 182, 212, 0.08); /* Light cyan */
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
 
   /* Semantic Color Tokens (Light Mode) */
   --color-background: var(--color-cream-50);
@@ -79,19 +78,10 @@
   --status-bg-opacity: 0.15;
   --status-border-opacity: 0.25;
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-
-  /* RGB versions for opacity control */
-  --color-success-rgb: 33, 128, 141;
-  --color-error-rgb: 192, 21, 47;
-  --color-warning-rgb: 168, 75, 47;
-  --color-info-rgb: 98, 108, 113;
 
   /* Typography */
-  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, monospace;
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-size-xs: 11px;
   --font-size-sm: 12px;
   --font-size-base: 14px;
@@ -133,12 +123,9 @@
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
-    0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
-    0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 
   /* Animation */
   --duration-fast: 150ms;
@@ -150,15 +137,6 @@
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
-
-  /* Government Color Scheme */
-  --gov-primary: #1e40af;
-  --gov-primary-hover: #1d4ed8;
-  --gov-secondary: #059669;
-  --gov-accent: #dc2626;
-  --gov-gray: #6b7280;
-  --gov-light: #f8fafc;
-  --gov-dark: #1f2937;
 }
 
 /* Base styles */
@@ -184,12 +162,7 @@ body {
 }
 
 /* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
@@ -197,735 +170,2205 @@ h6 {
   letter-spacing: var(--letter-spacing-tight);
 }
 
-h1 {
-  font-size: var(--font-size-4xl);
-}
-h2 {
-  font-size: var(--font-size-3xl);
-}
-h3 {
-  font-size: var(--font-size-2xl);
-}
-h4 {
-  font-size: var(--font-size-xl);
-}
-h5 {
-  font-size: var(--font-size-lg);
-}
-h6 {
-  font-size: var(--font-size-md);
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-md); }
+
+p {
+  margin: 0 0 var(--space-16) 0;
 }
 
-/* Login Screen */
+/* Custom styles for the application */
 .login-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--gov-primary) 0%, var(--gov-secondary) 100%);
-  padding: var(--space-20);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--color-background);
 }
 
 .login-card {
-  background: var(--color-surface);
-  padding: var(--space-32);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
+    background: var(--color-surface);
+    padding: var(--space-32);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-card-border);
+    width: 100%;
+    max-width: 400px;
 }
 
-.login-header {
-  margin-bottom: var(--space-32);
+.app-header {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    padding: var(--space-16) var(--space-24);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
 }
 
-.login-logo {
-  width: 80px;
-  height: 80px;
-  background: var(--gov-primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-16);
-  color: white;
-  font-size: var(--font-size-3xl);
-}
-
-.login-title {
-  font-size: var(--font-size-3xl);
-  color: var(--color-text);
-  margin-bottom: var(--space-8);
-}
-
-.login-subtitle {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
-}
-
-/* Dashboard Layout */
-.dashboard {
-  display: flex;
-  min-height: 100vh;
+.app-container {
+    display: flex;
+    min-height: calc(100vh - 70px);
 }
 
 .sidebar {
-  width: 280px;
-  background: var(--gov-dark);
-  color: white;
-  flex-shrink: 0;
-  transition: transform var(--duration-normal) var(--ease-standard);
+    width: 250px;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-16);
 }
 
-.sidebar-header {
-  padding: var(--space-20);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.sidebar-logo {
-  width: 50px;
-  height: 50px;
-  background: var(--gov-primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-12);
-  font-size: var(--font-size-xl);
+.sidebar-menu li {
+    margin-bottom: var(--space-8);
 }
 
-.sidebar-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--space-4);
+.sidebar-menu button {
+    width: 100%;
+    text-align: left;
+    padding: var(--space-12) var(--space-16);
+    border: none;
+    background: transparent;
+    color: var(--color-text);
+    border-radius: var(--radius-base);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-standard);
 }
 
-.sidebar-user {
-  font-size: var(--font-size-sm);
-  opacity: 0.8;
+.sidebar-menu button:hover {
+    background: var(--color-secondary);
 }
 
-.sidebar-nav {
-  padding: var(--space-16) 0;
-}
-
-.nav-item {
-  display: block;
-  padding: var(--space-12) var(--space-20);
-  color: white;
-  text-decoration: none;
-  transition: background-color var(--duration-fast) var(--ease-standard);
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item.active {
-  background: var(--gov-primary);
-  border-right: 3px solid var(--gov-secondary);
-}
-
-.nav-item i {
-  margin-right: var(--space-12);
-  width: 20px;
-  text-align: center;
+.sidebar-menu button.active {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
 }
 
 .main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-background);
+    flex: 1;
+    padding: var(--space-24);
+    overflow-y: auto;
 }
 
-.header {
-  background: var(--color-surface);
-  padding: var(--space-16) var(--space-24);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  justify-content: space-between;
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.btn {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+  border: none;
+  text-decoration: none;
+  position: relative;
 }
 
-.header-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
-.content {
-  flex: 1;
-  padding: var(--space-24);
-  overflow-y: auto;
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
 }
 
-/* Cards & Forms */
-.card {
-  background: var(--color-surface);
-  padding: var(--space-24);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-24);
-  border: 1px solid var(--color-card-border);
+.btn--primary:hover {
+  background: var(--color-primary-hover);
 }
 
-.form-group {
-  margin-bottom: var(--space-16);
+.btn--secondary {
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.btn--secondary:hover {
+  background: var(--color-secondary-hover);
+}
+
+.btn--outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn--outline:hover {
+  background: var(--color-secondary);
+}
+
+.btn--danger {
+  background: var(--color-error);
+  color: white;
+}
+
+.btn--sm {
+  padding: var(--space-4) var(--space-12);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn--full-width {
+  width: 100%;
+}
+
+/* Form elements */
+.form-control {
+  display: block;
+  width: 100%;
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  outline: var(--focus-outline);
 }
 
 .form-label {
   display: block;
   margin-bottom: var(--space-8);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text);
+  font-size: var(--font-size-sm);
 }
 
-.form-control {
-  width: 100%;
-  padding: var(--space-12);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-base);
-  font-size: var(--font-size-base);
-  background: var(--color-surface);
-  color: var(--color-text);
-  transition: border-color var(--duration-fast) var(--ease-standard);
+.form-group {
+  margin-bottom: var(--space-16);
 }
 
-.form-control:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--focus-ring);
-}
-
-select.form-control {
-  background-image: var(--select-caret-light);
-  background-repeat: no-repeat;
-  background-position: right var(--space-12) center;
-  background-size: 16px;
-  padding-right: var(--space-32);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-12) var(--space-20);
-  border: none;
-  border-radius: var(--radius-base);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
-  gap: var(--space-8);
-}
-
-.btn-primary {
-  background: var(--gov-primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--gov-primary-hover);
-}
-
-.btn-secondary {
-  background: var(--color-secondary);
-  color: var(--color-text);
-}
-
-.btn-secondary:hover {
-  background: var(--color-secondary-hover);
-}
-
-.btn-success {
-  background: var(--gov-secondary);
-  color: white;
-}
-
-.btn-danger {
-  background: var(--gov-accent);
-  color: white;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.btn-outline:hover {
-  background: var(--color-secondary);
-}
-
-/* Tables */
-.table-container {
-  overflow-x: auto;
-  margin-top: var(--space-16);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  border-radius: var(--radius-base);
+/* Card component */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-card-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+  margin-bottom: var(--space-16);
+}
+
+.card__body {
+  padding: var(--space-16);
+}
+
+.card__header {
+  padding: var(--space-16);
+  border-bottom: 1px solid var(--color-card-border-inner);
+  background: var(--color-bg-1);
+}
+
+/* Table styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-16) 0;
 }
 
 .table th,
 .table td {
-  padding: var(--space-12) var(--space-16);
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
+    padding: var(--space-12);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .table th {
-  background: var(--color-secondary);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
+    background: var(--color-bg-2);
+    font-weight: var(--font-weight-semibold);
 }
 
-.table tbody tr:hover {
-  background: var(--color-bg-1);
+.table tr:hover {
+    background: var(--color-bg-1);
 }
 
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: center;
+/* Status indicators */
+.status {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-8);
-  margin-top: var(--space-24);
-}
-
-.pagination-btn {
-  padding: var(--space-8) var(--space-12);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.pagination-btn:hover {
-  background: var(--color-secondary);
-}
-
-.pagination-btn.active {
-  background: var(--gov-primary);
-  color: white;
-  border-color: var(--gov-primary);
-}
-
-/* Filters */
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-16);
-  margin-bottom: var(--space-24);
-  padding: var(--space-20);
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
-/* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-20);
-  margin-bottom: var(--space-32);
-}
-
-.stat-card {
-  background: var(--color-surface);
-  padding: var(--space-20);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-card-border);
-  text-align: center;
-}
-
-.stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-12);
-  font-size: var(--font-size-2xl);
-  color: white;
-}
-
-.stat-icon.primary {
-  background: var(--gov-primary);
-}
-
-.stat-icon.success {
-  background: var(--gov-secondary);
-}
-
-.stat-icon.warning {
-  background: var(--color-warning);
-}
-
-.stat-icon.danger {
-  background: var(--gov-accent);
-}
-
-.stat-number {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text);
-  margin-bottom: var(--space-4);
-}
-
-.stat-label {
-  color: var(--color-text-secondary);
+  padding: var(--space-6) var(--space-12);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
 }
 
-/* Alerts */
-.alert {
-  padding: var(--space-16);
-  border-radius: var(--radius-base);
-  margin-bottom: var(--space-16);
-  border: 1px solid;
-}
-
-.alert-success {
-  background: rgba(var(--color-success-rgb), 0.1);
-  border-color: var(--color-success);
+.status--success {
+  background-color: rgba(var(--color-teal-500-rgb), var(--status-bg-opacity));
   color: var(--color-success);
+  border: 1px solid rgba(var(--color-teal-500-rgb), var(--status-border-opacity));
 }
 
-.alert-error {
-  background: rgba(var(--color-error-rgb), 0.1);
-  border-color: var(--color-error);
-  color: var(--color-error);
-}
-
-.alert-warning {
-  background: rgba(var(--color-warning-rgb), 0.1);
-  border-color: var(--color-warning);
+.status--warning {
+  background-color: rgba(var(--color-orange-500-rgb), var(--status-bg-opacity));
   color: var(--color-warning);
+  border: 1px solid rgba(var(--color-orange-500-rgb), var(--status-border-opacity));
+}
+
+/* Utility classes */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-8 { gap: var(--space-8); }
+.gap-16 { gap: var(--space-16); }
+
+.mt-16 { margin-top: var(--space-16); }
+.mb-16 { margin-bottom: var(--space-16); }
+.mr-8 { margin-right: var(--space-8); }
+
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-8);
+    margin: var(--space-16) 0;
+}
+
+.pagination button {
+    padding: var(--space-8) var(--space-12);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: var(--radius-base);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.pagination button:hover {
+    background: var(--color-secondary);
+}
+
+.pagination button.active {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    border-color: var(--color-primary);
+}
+
+/* Filter section */
+.filters {
+    background: var(--color-bg-3);
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+    margin-bottom: var(--space-16);
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-16);
+    align-items: end;
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: var(--space-16) 0;
+}
+
+/* Loading state */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-24);
+    color: var(--color-text-secondary);
+}
+
+/* Error message */
+.error-message {
+    background: rgba(var(--color-red-500-rgb), 0.1);
+    color: var(--color-error);
+    padding: var(--space-12);
+    border-radius: var(--radius-base);
+    border: 1px solid rgba(var(--color-red-500-rgb), 0.2);
+    margin: var(--space-16) 0;
+}
+
+/* Success message */
+.success-message {
+    background: rgba(var(--color-teal-500-rgb), 0.1);
+    color: var(--color-success);
+    padding: var(--space-12);
+    border-radius: var(--radius-base);
+    border: 1px solid rgba(var(--color-teal-500-rgb), 0.2);
+    margin: var(--space-16) 0;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--color-surface);
+    padding: var(--space-24);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 90%;
+}
+
+/* Report styles */
+.report-summary {
+    background: var(--color-bg-4);
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+    margin-bottom: var(--space-16);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-8);
+}
+
+.summary-item strong {
+    font-weight: var(--font-weight-semibold);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 1000;
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    width: 100%;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filters {
-    grid-template-columns: 1fr;
-  }
-}
-
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: var(--font-size-xl);
-  cursor: pointer;
-  color: var(--color-text);
-}
-
-/* Utility Classes */
-.hidden {
-  display: none !important;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.gap-4 {
-  gap: var(--space-4);
-}
-
-.gap-8 {
-  gap: var(--space-8);
-}
-
-.gap-16 {
-  gap: var(--space-16);
-}
-
-.mb-0 {
-  margin-bottom: 0;
-}
-
-.mb-16 {
-  margin-bottom: var(--space-16);
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-right {
-  text-align: right;
-}
-
-/* Loading Spinner */
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-border);
-  border-radius: 50%;
-  border-top-color: var(--color-primary);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Chart Container */
-.chart-container {
-  position: relative;
-  height: 400px;
-  margin-top: var(--space-20);
-}
-
-/* Process Format Helper */
-.process-format-hint {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-top: var(--space-4);
-}
-
-/* Search Results */
-.search-results {
-  margin-top: var(--space-20);
-}
-
-.search-result-item {
-  background: var(--color-surface);
-  padding: var(--space-16);
-  border-radius: var(--radius-base);
-  border: 1px solid var(--color-card-border);
-  margin-bottom: var(--space-12);
-}
-
-.search-result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-8);
-}
-
-.search-result-number {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
-}
-
-.search-result-date {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.search-result-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-8);
-}
-
-.search-result-detail {
-  font-size: var(--font-size-sm);
-}
-
-.search-result-detail strong {
-  color: var(--color-text);
-}
-
-.search-result-detail span {
-  color: var(--color-text-secondary);
-}
-
-/* Status badges */
-.status-badge {
-  display: inline-block;
-  padding: var(--space-4) var(--space-8);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-}
-
-.status-badge.ativo {
-  background: rgba(var(--color-success-rgb), 0.15);
-  color: var(--color-success);
-  border: 1px solid rgba(var(--color-success-rgb), 0.25);
-}
-
-.status-badge.arquivado {
-  background: rgba(var(--color-warning-rgb), 0.15);
-  color: var(--color-warning);
-  border: 1px solid rgba(var(--color-warning-rgb), 0.25);
-}
-
-.status-badge.cancelado {
-  background: rgba(var(--color-error-rgb), 0.15);
-  color: var(--color-error);
-  border: 1px solid rgba(var(--color-error-rgb), 0.25);
-}
-
-/* Overlay */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: none;
-}
-
-.overlay.show {
-  display: block;
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+    
+    .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        gap: var(--space-8);
+    }
+    
+    .sidebar-menu li {
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+    
+    .filters-row {
+        grid-template-columns: 1fr;
+    }
 }
     </style>
 </head>
 <body>
-    <!-- Tela de Login -->
+    <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
-            <div class="login-header">
-                <div class="login-logo">
-                    <i class="fas fa-city"></i>
-                </div>
-                <h1 class="login-title">Prefeitura Municipal</h1>
-                <p class="login-subtitle">Sistema de Cadastro Técnico</p>
-            </div>
-            
+            <h1 class="text-center mb-16">Sistema de Cadastro Técnico</h1>
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="form-label" for="email">E-mail:</label>
-                    <input type="email" id="email" class="form-control" required
-                           placeholder="Digite seu e-mail">
+                    <label class="form-label" for="userType">Tipo de Usuário</label>
+                    <select class="form-control" id="userType" required>
+                        <option value="">Selecione o tipo de usuário</option>
+                        <option value="gestor">Gestor</option>
+                        <option value="admin">Admin</option>
+                        <option value="consulta">Consulta</option>
+                    </select>
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label" for="password">Senha:</label>
-                    <input type="password" id="password" class="form-control" required
-                           placeholder="Digite sua senha">
+                    <label class="form-label" for="password">Senha</label>
+                    <input type="password" class="form-control" id="password" required>
                 </div>
-                
-                <div id="loginError" class="alert alert-error hidden">
-                    Credenciais inválidas. Verifique e-mail e senha.
-                </div>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Entrar
-                </button>
+                <button type="submit" class="btn btn--primary btn--full-width">Entrar</button>
             </form>
+            <div id="loginError" class="error-message hidden"></div>
         </div>
     </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard" class="dashboard hidden">
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i class="fas fa-city"></i>
-                </div>
-                <h3 class="sidebar-title">Cadastro Técnico</h3>
-                <p class="sidebar-user" id="currentUser">Usuário</p>
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <header class="app-header">
+            <h1>Sistema de Cadastro Técnico</h1>
+            <div class="flex items-center gap-16">
+                <span id="userInfo"></span>
+                <button id="logoutBtn" class="btn btn--outline">Sair</button>
             </div>
+        </header>
+        
+        <div class="app-container">
+            <nav class="sidebar">
+                <ul class="sidebar-menu" id="sidebarMenu">
+                    <!-- Menu items will be populated by JavaScript -->
+                </ul>
+            </nav>
             
-            <div class="sidebar-nav" id="sidebarNav">
-                <!-- Navigation items will be populated by JavaScript -->
-            </div>
-        </nav>
+            <main class="main-content">
+                <!-- Configurações -->
+                <section id="configuracoes" class="section">
+                    <h2>Configurações</h2>
+                    
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Cadastradores</h3>
+                            <button id="addCadastradorBtn" class="btn btn--primary btn--sm">Adicionar Cadastrador</button>
+                        </div>
+                        <div class="card__body">
+                            <table class="table" id="cadastradoresTable">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Assuntos</h3>
+                            <button id="addAssuntoBtn" class="btn btn--primary btn--sm">Adicionar Assunto</button>
+                        </div>
+                        <div class="card__body">
+                            <table class="table" id="assuntosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Assunto</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="flex items-center gap-16">
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2 class="header-title" id="pageTitle">Dashboard</h2>
-                </div>
-                <button class="btn btn-outline" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Sair
-                </button>
-            </header>
+                <!-- Cadastro de Processo -->
+                <section id="cadastroProcesso" class="section">
+                    <h2>Cadastro de Processo</h2>
+                    
+                    <div class="card">
+                        <div class="card__body">
+                            <form id="processoForm">
+                                <div class="form-group">
+                                    <label class="form-label" for="nProcesso">Nº de Processo *</label>
+                                    <input type="text" class="form-control" id="nProcesso" placeholder="00000/0000" pattern="\d{5}/\d{4}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="ctm">CTM</label>
+                                    <input type="text" class="form-control" id="ctm">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="assunto">Assunto *</label>
+                                    <select class="form-control" id="assunto" required>
+                                        <option value="">Selecione um assunto</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="entrada">Entrada</label>
+                                    <input type="date" class="form-control" id="entrada">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="vistoria">Vistoria</label>
+                                    <input type="date" class="form-control" id="vistoria">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="cadastrador">Cadastrador</label>
+                                    <select class="form-control" id="cadastrador">
+                                        <option value="">Selecione um cadastrador</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="primeiraVisita">1ª Visita</label>
+                                    <input type="date" class="form-control" id="primeiraVisita">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="segundaVisita">2ª Visita</label>
+                                    <input type="date" class="form-control" id="segundaVisita">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="terceiraVisita">3ª Visita</label>
+                                    <input type="date" class="form-control" id="terceiraVisita">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="saida">Saída</label>
+                                    <input type="date" class="form-control" id="saida">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="destino">Destino</label>
+                                    <input type="text" class="form-control" id="destino">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="status">Status</label>
+                                    <select class="form-control" id="status">
+                                        <option value="">Selecione um status</option>
+                                        <option value="Concluído">Concluído</option>
+                                        <option value="Em tramitação">Em tramitação</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn--primary">Salvar Processo</button>
+                            </form>
+                            
+                            <div id="processoMessage" class="hidden"></div>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Content Area -->
-            <div class="content" id="mainContent">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </main>
+                <!-- Editar Processo -->
+                <section id="editarProcesso" class="section">
+                    <h2>Editar Processo</h2>
+                    
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="form-group">
+                                <label class="form-label" for="searchProcesso">Pesquisar Processo</label>
+                                <div class="flex gap-8">
+                                    <input type="text" class="form-control" id="searchProcesso" placeholder="00000/0000">
+                                    <button type="button" id="searchBtn" class="btn btn--primary">Buscar</button>
+                                </div>
+                            </div>
+                            
+                            <div id="editProcessoForm" class="hidden">
+                                <!-- Form will be populated by JavaScript -->
+                            </div>
+                            
+                            <div id="editMessage" class="hidden"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Consulta -->
+                <section id="consulta" class="section">
+                    <h2>Consulta de Processo</h2>
+                    
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="form-group">
+                                <label class="form-label" for="consultaProcesso">Pesquisar Processo</label>
+                                <div class="flex gap-8">
+                                    <input type="text" class="form-control" id="consultaProcesso" placeholder="00000/0000">
+                                    <button type="button" id="consultaBtn" class="btn btn--primary">Consultar</button>
+                                </div>
+                            </div>
+                            
+                            <div id="consultaResult" class="hidden">
+                                <!-- Result will be populated by JavaScript -->
+                            </div>
+                            
+                            <div id="consultaMessage" class="hidden"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Base de Dados -->
+                <section id="baseDados" class="section">
+                    <h2>Base de Dados</h2>
+                    
+                    <div class="filters">
+                        <div class="filters-row">
+                            <div class="form-group">
+                                <label class="form-label" for="filterCadastrador">Cadastrador</label>
+                                <select class="form-control" id="filterCadastrador">
+                                    <option value="">Todos os cadastradores</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="filterDataInicial">Data Inicial</label>
+                                <input type="date" class="form-control" id="filterDataInicial">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="filterDataFinal">Data Final</label>
+                                <input type="date" class="form-control" id="filterDataFinal">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="filterAssunto">Assunto</label>
+                                <select class="form-control" id="filterAssunto">
+                                    <option value="">Todos os assuntos</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="button" id="applyFiltersBtn" class="btn btn--primary">Aplicar Filtros</button>
+                                <button type="button" id="clearFiltersBtn" class="btn btn--secondary">Limpar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card__body">
+                            <div id="processosList">
+                                <!-- List will be populated by JavaScript -->
+                            </div>
+                            
+                            <div id="paginationContainer" class="pagination">
+                                <!-- Pagination will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Relatórios -->
+                <section id="relatorios" class="section">
+                    <h2>Relatórios</h2>
+                    
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Opções de Relatório</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="flex gap-16">
+                                <button id="relatorioIndividualBtn" class="btn btn--primary">Relatório Individual</button>
+                                <button id="relatorioCompletoBtn" class="btn btn--primary">Relatório Completo</button>
+                                <button id="relatorioGraficosBtn" class="btn btn--primary">Gráficos</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Individual Report -->
+                    <div id="relatorioIndividual" class="card hidden">
+                        <div class="card__header">
+                            <h3>Relatório Individual</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="filters-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="relCadastrador">Cadastrador</label>
+                                    <select class="form-control" id="relCadastrador">
+                                        <option value="">Selecione um cadastrador</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="relDataInicial">Data Inicial</label>
+                                    <input type="date" class="form-control" id="relDataInicial">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="relDataFinal">Data Final</label>
+                                    <input type="date" class="form-control" id="relDataFinal">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="button" id="gerarRelIndividualBtn" class="btn btn--primary">Gerar Relatório</button>
+                                </div>
+                            </div>
+                            
+                            <div id="relatorioIndividualResult" class="hidden">
+                                <!-- Report result will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Complete Report -->
+                    <div id="relatorioCompleto" class="card hidden">
+                        <div class="card__header">
+                            <h3>Relatório Completo</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="filters-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="relCompDataInicial">Data Inicial</label>
+                                    <input type="date" class="form-control" id="relCompDataInicial">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="relCompDataFinal">Data Final</label>
+                                    <input type="date" class="form-control" id="relCompDataFinal">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="button" id="gerarRelCompletoBtn" class="btn btn--primary">Gerar Relatório</button>
+                                </div>
+                            </div>
+                            
+                            <div id="relatorioCompletoResult" class="hidden">
+                                <!-- Report result will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Graphics Report -->
+                    <div id="relatorioGraficos" class="card hidden">
+                        <div class="card__header">
+                            <h3>Gráficos</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="filters-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="grafCadastrador">Cadastrador</label>
+                                    <select class="form-control" id="grafCadastrador">
+                                        <option value="">Selecione um cadastrador</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="grafDataInicial">Data Inicial</label>
+                                    <input type="date" class="form-control" id="grafDataInicial">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="grafDataFinal">Data Final</label>
+                                    <input type="date" class="form-control" id="grafDataFinal">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="button" id="gerarGraficosBtn" class="btn btn--primary">Gerar Gráficos</button>
+                                </div>
+                            </div>
+                            
+                            <div id="graficosContainer" class="hidden">
+                                <div class="chart-container">
+                                    <canvas id="pizzaChart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="barrasConcluidoChart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="barrasAbertoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 
-    <!-- Overlay for mobile menu -->
-    <div class="overlay" id="overlay"></div>
+    <!-- Modals -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Editar</h3>
+            <form id="modalForm">
+                <div class="form-group">
+                    <label class="form-label" for="modalInput">Nome</label>
+                    <input type="text" class="form-control" id="modalInput" required>
+                </div>
+                <div class="flex gap-8 justify-between">
+                    <button type="button" id="cancelModalBtn" class="btn btn--secondary">Cancelar</button>
+                    <button type="submit" class="btn btn--primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Main Application Script -->
-    <script src="app.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIMziMEygrNUc3VeYxLOyj98JSMyeEkI8",
+            authDomain: "cadastro-39a2b.firebaseapp.com",
+            databaseURL: "https://cadastro-39a2b-default-rtdb.firebaseio.com",
+            projectId: "cadastro-39a2b",
+            storageBucket: "cadastro-39a2b.firebasestorage.app",
+            messagingSenderId: "457985275329",
+            appId: "1:457985275329:web:3f830cce90394d93e76b40",
+            measurementId: "G-M9EJJJZL5V"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // User configuration
+        const users = {
+            gestor: {
+                name: 'Gestor',
+                email: 'seplan.cadastro@valadares.mg.gov.br',
+                role: 'gestor',
+                menus: ['configuracoes', 'cadastroProcesso', 'editarProcesso', 'consulta', 'baseDados', 'relatorios']
+            },
+            admin: {
+                name: 'Admin',
+                email: 'wendel_hai@hotmail.com',
+                role: 'admin',
+                menus: ['configuracoes', 'cadastroProcesso', 'editarProcesso', 'consulta', 'baseDados', 'relatorios']
+            },
+            consulta: {
+                name: 'Consulta',
+                email: 'consulta@hotmail.com',
+                role: 'consulta',
+                menus: ['consulta', 'baseDados']
+            }
+        };
+
+        // Menu labels
+        const menuLabels = {
+            configuracoes: 'Configurações',
+            cadastroProcesso: 'Cadastro de Processo',
+            editarProcesso: 'Editar Processo',
+            consulta: 'Consulta',
+            baseDados: 'Base de Dados',
+            relatorios: 'Relatórios'
+        };
+
+        let currentUser = null;
+        let currentSection = null;
+        let assuntos = [];
+        let cadastradores = [];
+        let processos = [];
+        let currentPage = 1;
+        const itemsPerPage = 500;
+        let filteredProcessos = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            checkAuthState();
+        });
+
+        function initializeEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Search buttons
+            document.getElementById('searchBtn').addEventListener('click', searchProcesso);
+            document.getElementById('consultaBtn').addEventListener('click', consultaProcesso);
+            
+            // Filter buttons
+            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+            
+            // Process form
+            document.getElementById('processoForm').addEventListener('submit', saveProcesso);
+            
+            // Configuration buttons
+            document.getElementById('addCadastradorBtn').addEventListener('click', () => showAddModal('cadastrador'));
+            document.getElementById('addAssuntoBtn').addEventListener('click', () => showAddModal('assunto'));
+            
+            // Report buttons
+            document.getElementById('relatorioIndividualBtn').addEventListener('click', () => showReportSection('relatorioIndividual'));
+            document.getElementById('relatorioCompletoBtn').addEventListener('click', () => showReportSection('relatorioCompleto'));
+            document.getElementById('relatorioGraficosBtn').addEventListener('click', () => showReportSection('relatorioGraficos'));
+            
+            // Generate report buttons
+            document.getElementById('gerarRelIndividualBtn').addEventListener('click', generateIndividualReport);
+            document.getElementById('gerarRelCompletoBtn').addEventListener('click', generateCompleteReport);
+            document.getElementById('gerarGraficosBtn').addEventListener('click', generateGraphics);
+            
+            // Modal buttons
+            document.getElementById('cancelModalBtn').addEventListener('click', hideModal);
+            document.getElementById('modalForm').addEventListener('submit', handleModalSubmit);
+            
+            // Process number formatting
+            document.getElementById('nProcesso').addEventListener('input', formatProcessNumber);
+            document.getElementById('searchProcesso').addEventListener('input', formatProcessNumber);
+            document.getElementById('consultaProcesso').addEventListener('input', formatProcessNumber);
+        }
+
+        function checkAuthState() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Find user type based on email
+                    const userType = Object.keys(users).find(key => users[key].email === user.email);
+                    if (userType) {
+                        currentUser = { ...users[userType], uid: user.uid };
+                        showMainApp();
+                    } else {
+                        handleLogout();
+                    }
+                } else {
+                    showLoginScreen();
+                }
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const userType = document.getElementById('userType').value;
+            const password = document.getElementById('password').value;
+            
+            if (!userType) {
+                showError('loginError', 'Por favor, selecione o tipo de usuário.');
+                return;
+            }
+            
+            const user = users[userType];
+            if (!user) {
+                showError('loginError', 'Tipo de usuário inválido.');
+                return;
+            }
+            
+            // Sign in with Firebase Auth
+            auth.signInWithEmailAndPassword(user.email, password)
+                .then((userCredential) => {
+                    hideError('loginError');
+                })
+                .catch((error) => {
+                    showError('loginError', 'Credenciais inválidas. Verifique o tipo de usuário e senha.');
+                });
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                currentUser = null;
+                showLoginScreen();
+            });
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            // Clear form
+            document.getElementById('loginForm').reset();
+            hideError('loginError');
+        }
+
+        function showMainApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Set user info
+            document.getElementById('userInfo').textContent = `Logado como: ${currentUser.name}`;
+            
+            // Build sidebar menu
+            buildSidebarMenu();
+            
+            // Load initial data
+            loadData();
+            
+            // Show first available section
+            if (currentUser.menus.length > 0) {
+                showSection(currentUser.menus[0]);
+            }
+        }
+
+        function buildSidebarMenu() {
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            sidebarMenu.innerHTML = '';
+            
+            currentUser.menus.forEach(menu => {
+                const li = document.createElement('li');
+                const button = document.createElement('button');
+                button.textContent = menuLabels[menu];
+                button.addEventListener('click', () => showSection(menu));
+                button.setAttribute('data-section', menu);
+                li.appendChild(button);
+                sidebarMenu.appendChild(li);
+            });
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all menu items
+            document.querySelectorAll('.sidebar-menu button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+                currentSection = sectionId;
+                
+                // Add active class to menu item
+                const button = document.querySelector(`[data-section="${sectionId}"]`);
+                if (button) {
+                    button.classList.add('active');
+                }
+                
+                // Load section-specific data
+                loadSectionData(sectionId);
+            }
+        }
+
+        function loadData() {
+            // Load cadastradores
+            database.ref('cadastradores').on('value', (snapshot) => {
+                cadastradores = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        cadastradores.push({
+                            id: child.key,
+                            nome: child.val().nome || child.val()
+                        });
+                    });
+                }
+                updateCadastradorOptions();
+            });
+            
+            // Load assuntos
+            database.ref('assuntos').on('value', (snapshot) => {
+                assuntos = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        assuntos.push({
+                            id: child.key,
+                            nome: child.val().nome || child.val()
+                        });
+                    });
+                }
+                updateAssuntoOptions();
+            });
+            
+            // Load processos
+            database.ref('processos').on('value', (snapshot) => {
+                processos = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        processos.push({
+                            id: child.key,
+                            ...child.val()
+                        });
+                    });
+                }
+                filteredProcessos = [...processos];
+                updateProcessosList();
+            });
+        }
+
+        function loadSectionData(sectionId) {
+            switch (sectionId) {
+                case 'configuracoes':
+                    loadConfigurations();
+                    break;
+                case 'baseDados':
+                    updateProcessosList();
+                    break;
+            }
+        }
+
+        function loadConfigurations() {
+            loadCadastradoresTable();
+            loadAssuntosTable();
+        }
+
+        function loadCadastradoresTable() {
+            const tbody = document.querySelector('#cadastradoresTable tbody');
+            tbody.innerHTML = '';
+            
+            cadastradores.forEach(cadastrador => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cadastrador.nome}</td>
+                    <td>
+                        <button class="btn btn--sm btn--outline mr-8" onclick="editCadastrador('${cadastrador.id}', '${cadastrador.nome}')">Editar</button>
+                        <button class="btn btn--sm btn--danger" onclick="deleteCadastrador('${cadastrador.id}')">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadAssuntosTable() {
+            const tbody = document.querySelector('#assuntosTable tbody');
+            tbody.innerHTML = '';
+            
+            assuntos.forEach(assunto => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${assunto.nome}</td>
+                    <td>
+                        <button class="btn btn--sm btn--outline mr-8" onclick="editAssunto('${assunto.id}', '${assunto.nome}')">Editar</button>
+                        <button class="btn btn--sm btn--danger" onclick="deleteAssunto('${assunto.id}')">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateCadastradorOptions() {
+            const selects = ['cadastrador', 'filterCadastrador', 'relCadastrador', 'grafCadastrador'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Save current value
+                    const currentValue = select.value;
+                    
+                    // Clear and repopulate
+                    const firstOption = select.firstElementChild;
+                    select.innerHTML = '';
+                    if (firstOption) {
+                        select.appendChild(firstOption);
+                    }
+                    
+                    cadastradores.forEach(cadastrador => {
+                        const option = document.createElement('option');
+                        option.value = cadastrador.id;
+                        option.textContent = cadastrador.nome;
+                        select.appendChild(option);
+                    });
+                    
+                    // Restore value if it still exists
+                    if (currentValue && cadastradores.find(c => c.id === currentValue)) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+        }
+
+        function updateAssuntoOptions() {
+            const selects = ['assunto', 'filterAssunto'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Save current value
+                    const currentValue = select.value;
+                    
+                    // Clear and repopulate
+                    const firstOption = select.firstElementChild;
+                    select.innerHTML = '';
+                    if (firstOption) {
+                        select.appendChild(firstOption);
+                    }
+                    
+                    assuntos.forEach(assunto => {
+                        const option = document.createElement('option');
+                        option.value = assunto.id;
+                        option.textContent = assunto.nome;
+                        select.appendChild(option);
+                    });
+                    
+                    // Restore value if it still exists
+                    if (currentValue && assuntos.find(a => a.id === currentValue)) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+        }
+
+        function formatProcessNumber(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.slice(0, 5) + '/' + value.slice(5, 9);
+            }
+            e.target.value = value;
+        }
+
+        function saveProcesso(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const nProcesso = document.getElementById('nProcesso').value;
+            
+            if (!nProcesso || !nProcesso.match(/^\d{5}\/\d{4}$/)) {
+                showError('processoMessage', 'Número do processo deve estar no formato 00000/0000');
+                return;
+            }
+            
+            const assuntoValue = document.getElementById('assunto').value;
+            if (!assuntoValue) {
+                showError('processoMessage', 'Assunto é obrigatório');
+                return;
+            }
+            
+            // Convert process number format for database
+            const processKey = nProcesso.replace('/', '-');
+            
+            const processoData = {
+                nProcesso: processKey,
+                ctm: document.getElementById('ctm').value,
+                assunto: assuntoValue,
+                entrada: document.getElementById('entrada').value,
+                vistoria: document.getElementById('vistoria').value,
+                cadastrador: document.getElementById('cadastrador').value,
+                primeiraVisita: document.getElementById('primeiraVisita').value,
+                segundaVisita: document.getElementById('segundaVisita').value,
+                terceiraVisita: document.getElementById('terceiraVisita').value,
+                saida: document.getElementById('saida').value,
+                destino: document.getElementById('destino').value,
+                status: document.getElementById('status').value
+            };
+            
+            database.ref('processos/' + processKey).set(processoData)
+                .then(() => {
+                    showSuccess('processoMessage', 'Processo salvo com sucesso!');
+                    document.getElementById('processoForm').reset();
+                })
+                .catch((error) => {
+                    showError('processoMessage', 'Erro ao salvar processo: ' + error.message);
+                });
+        }
+
+        function searchProcesso() {
+            const nProcesso = document.getElementById('searchProcesso').value;
+            if (!nProcesso) {
+                showError('editMessage', 'Digite o número do processo');
+                return;
+            }
+            
+            const processKey = nProcesso.replace('/', '-');
+            
+            database.ref('processos/' + processKey).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const processo = snapshot.val();
+                        showEditForm(processo, processKey);
+                        hideError('editMessage');
+                    } else {
+                        showError('editMessage', 'Processo não encontrado');
+                        hideEditForm();
+                    }
+                })
+                .catch((error) => {
+                    showError('editMessage', 'Erro ao buscar processo: ' + error.message);
+                });
+        }
+
+        function showEditForm(processo, processKey) {
+            const container = document.getElementById('editProcessoForm');
+            container.innerHTML = `
+                <form id="editForm">
+                    <input type="hidden" id="editProcessKey" value="${processKey}">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editNProcesso">Nº de Processo *</label>
+                        <input type="text" class="form-control" id="editNProcesso" value="${processo.nProcesso ? processo.nProcesso.replace('-', '/') : ''}" pattern="\d{5}/\d{4}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editCtm">CTM</label>
+                        <input type="text" class="form-control" id="editCtm" value="${processo.ctm || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editAssunto">Assunto *</label>
+                        <select class="form-control" id="editAssunto" required>
+                            <option value="">Selecione um assunto</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editEntrada">Entrada</label>
+                        <input type="date" class="form-control" id="editEntrada" value="${processo.entrada || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editVistoria">Vistoria</label>
+                        <input type="date" class="form-control" id="editVistoria" value="${processo.vistoria || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editCadastrador">Cadastrador</label>
+                        <select class="form-control" id="editCadastrador">
+                            <option value="">Selecione um cadastrador</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editPrimeiraVisita">1ª Visita</label>
+                        <input type="date" class="form-control" id="editPrimeiraVisita" value="${processo.primeiraVisita || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editSegundaVisita">2ª Visita</label>
+                        <input type="date" class="form-control" id="editSegundaVisita" value="${processo.segundaVisita || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editTerceiraVisita">3ª Visita</label>
+                        <input type="date" class="form-control" id="editTerceiraVisita" value="${processo.terceiraVisita || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editSaida">Saída</label>
+                        <input type="date" class="form-control" id="editSaida" value="${processo.saida || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editDestino">Destino</label>
+                        <input type="text" class="form-control" id="editDestino" value="${processo.destino || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editStatus">Status</label>
+                        <select class="form-control" id="editStatus">
+                            <option value="">Selecione um status</option>
+                            <option value="Concluído" ${processo.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+                            <option value="Em tramitação" ${processo.status === 'Em tramitação' ? 'selected' : ''}>Em tramitação</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn--primary">Salvar Alterações</button>
+                </form>
+            `;
+            
+            // Populate select options
+            const assuntoSelect = document.getElementById('editAssunto');
+            assuntos.forEach(assunto => {
+                const option = document.createElement('option');
+                option.value = assunto.id;
+                option.textContent = assunto.nome;
+                option.selected = assunto.id === processo.assunto;
+                assuntoSelect.appendChild(option);
+            });
+            
+            const cadastradorSelect = document.getElementById('editCadastrador');
+            cadastradores.forEach(cadastrador => {
+                const option = document.createElement('option');
+                option.value = cadastrador.id;
+                option.textContent = cadastrador.nome;
+                option.selected = cadastrador.id === processo.cadastrador;
+                cadastradorSelect.appendChild(option);
+            });
+            
+            // Add event listeners
+            document.getElementById('editNProcesso').addEventListener('input', formatProcessNumber);
+            document.getElementById('editForm').addEventListener('submit', updateProcesso);
+            
+            container.classList.remove('hidden');
+        }
+
+        function hideEditForm() {
+            document.getElementById('editProcessoForm').classList.add('hidden');
+        }
+
+        function updateProcesso(e) {
+            e.preventDefault();
+            
+            const processKey = document.getElementById('editProcessKey').value;
+            const nProcesso = document.getElementById('editNProcesso').value;
+            
+            if (!nProcesso || !nProcesso.match(/^\d{5}\/\d{4}$/)) {
+                showError('editMessage', 'Número do processo deve estar no formato 00000/0000');
+                return;
+            }
+            
+            const assuntoValue = document.getElementById('editAssunto').value;
+            if (!assuntoValue) {
+                showError('editMessage', 'Assunto é obrigatório');
+                return;
+            }
+            
+            const newProcessKey = nProcesso.replace('/', '-');
+            
+            const processoData = {
+                nProcesso: newProcessKey,
+                ctm: document.getElementById('editCtm').value,
+                assunto: assuntoValue,
+                entrada: document.getElementById('editEntrada').value,
+                vistoria: document.getElementById('editVistoria').value,
+                cadastrador: document.getElementById('editCadastrador').value,
+                primeiraVisita: document.getElementById('editPrimeiraVisita').value,
+                segundaVisita: document.getElementById('editSegundaVisita').value,
+                terceiraVisita: document.getElementById('editTerceiraVisita').value,
+                saida: document.getElementById('editSaida').value,
+                destino: document.getElementById('editDestino').value,
+                status: document.getElementById('editStatus').value
+            };
+            
+            // If process number changed, delete old and create new
+            if (processKey !== newProcessKey) {
+                database.ref('processos/' + processKey).remove()
+                    .then(() => {
+                        return database.ref('processos/' + newProcessKey).set(processoData);
+                    })
+                    .then(() => {
+                        showSuccess('editMessage', 'Processo atualizado com sucesso!');
+                        hideEditForm();
+                        document.getElementById('searchProcesso').value = '';
+                    })
+                    .catch((error) => {
+                        showError('editMessage', 'Erro ao atualizar processo: ' + error.message);
+                    });
+            } else {
+                database.ref('processos/' + processKey).set(processoData)
+                    .then(() => {
+                        showSuccess('editMessage', 'Processo atualizado com sucesso!');
+                        hideEditForm();
+                        document.getElementById('searchProcesso').value = '';
+                    })
+                    .catch((error) => {
+                        showError('editMessage', 'Erro ao atualizar processo: ' + error.message);
+                    });
+            }
+        }
+
+        function consultaProcesso() {
+            const nProcesso = document.getElementById('consultaProcesso').value;
+            if (!nProcesso) {
+                showError('consultaMessage', 'Digite o número do processo');
+                return;
+            }
+            
+            const processKey = nProcesso.replace('/', '-');
+            
+            database.ref('processos/' + processKey).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const processo = snapshot.val();
+                        showConsultaResult(processo);
+                        hideError('consultaMessage');
+                    } else {
+                        showError('consultaMessage', 'Processo não encontrado');
+                        hideConsultaResult();
+                    }
+                })
+                .catch((error) => {
+                    showError('consultaMessage', 'Erro ao buscar processo: ' + error.message);
+                });
+        }
+
+        function showConsultaResult(processo) {
+            const assuntoNome = assuntos.find(a => a.id === processo.assunto)?.nome || processo.assunto;
+            const cadastradorNome = cadastradores.find(c => c.id === processo.cadastrador)?.nome || processo.cadastrador;
+            
+            const container = document.getElementById('consultaResult');
+            container.innerHTML = `
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Detalhes do Processo ${processo.nProcesso ? processo.nProcesso.replace('-', '/') : ''}</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="form-group">
+                            <strong>Nº de Processo:</strong> ${processo.nProcesso ? processo.nProcesso.replace('-', '/') : 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>CTM:</strong> ${processo.ctm || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Assunto:</strong> ${assuntoNome || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Entrada:</strong> ${formatDate(processo.entrada) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Vistoria:</strong> ${formatDate(processo.vistoria) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Cadastrador:</strong> ${cadastradorNome || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>1ª Visita:</strong> ${formatDate(processo.primeiraVisita) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>2ª Visita:</strong> ${formatDate(processo.segundaVisita) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>3ª Visita:</strong> ${formatDate(processo.terceiraVisita) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Saída:</strong> ${formatDate(processo.saida) || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Destino:</strong> ${processo.destino || 'N/A'}
+                        </div>
+                        <div class="form-group">
+                            <strong>Status:</strong> 
+                            ${processo.status ? `<span class="status ${processo.status === 'Concluído' ? 'status--success' : 'status--warning'}">${processo.status}</span>` : 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.classList.remove('hidden');
+        }
+
+        function hideConsultaResult() {
+            document.getElementById('consultaResult').classList.add('hidden');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return null;
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function applyFilters() {
+            const cadastradorFilter = document.getElementById('filterCadastrador').value;
+            const dataInicialFilter = document.getElementById('filterDataInicial').value;
+            const dataFinalFilter = document.getElementById('filterDataFinal').value;
+            const assuntoFilter = document.getElementById('filterAssunto').value;
+            
+            filteredProcessos = processos.filter(processo => {
+                // Filter by cadastrador
+                if (cadastradorFilter && processo.cadastrador !== cadastradorFilter) {
+                    return false;
+                }
+                
+                // Filter by date range
+                if (dataInicialFilter || dataFinalFilter) {
+                    const entradaDate = new Date(processo.entrada);
+                    
+                    if (dataInicialFilter && entradaDate < new Date(dataInicialFilter)) {
+                        return false;
+                    }
+                    
+                    if (dataFinalFilter && entradaDate > new Date(dataFinalFilter)) {
+                        return false;
+                    }
+                }
+                
+                // Filter by assunto
+                if (assuntoFilter && processo.assunto !== assuntoFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            updateProcessosList();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterCadastrador').value = '';
+            document.getElementById('filterDataInicial').value = '';
+            document.getElementById('filterDataFinal').value = '';
+            document.getElementById('filterAssunto').value = '';
+            
+            filteredProcessos = [...processos];
+            currentPage = 1;
+            updateProcessosList();
+        }
+
+        function updateProcessosList() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageProcessos = filteredProcessos.slice(startIndex, endIndex);
+            
+            const container = document.getElementById('processosList');
+            
+            if (pageProcessos.length === 0) {
+                container.innerHTML = '<p class="text-center">Nenhum processo encontrado.</p>';
+            } else {
+                let tableHTML = `
+                    <div class="mb-16">
+                        <strong>Total de registros:</strong> ${filteredProcessos.length} | 
+                        <strong>Exibindo:</strong> ${startIndex + 1} até ${Math.min(endIndex, filteredProcessos.length)}
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nº Processo</th>
+                                <th>CTM</th>
+                                <th>Assunto</th>
+                                <th>Entrada</th>
+                                <th>Cadastrador</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                pageProcessos.forEach(processo => {
+                    const assuntoNome = assuntos.find(a => a.id === processo.assunto)?.nome || processo.assunto;
+                    const cadastradorNome = cadastradores.find(c => c.id === processo.cadastrador)?.nome || processo.cadastrador;
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${processo.nProcesso ? processo.nProcesso.replace('-', '/') : 'N/A'}</td>
+                            <td>${processo.ctm || 'N/A'}</td>
+                            <td>${assuntoNome || 'N/A'}</td>
+                            <td>${formatDate(processo.entrada) || 'N/A'}</td>
+                            <td>${cadastradorNome || 'N/A'}</td>
+                            <td>${processo.status ? `<span class="status ${processo.status === 'Concluído' ? 'status--success' : 'status--warning'}">${processo.status}</span>` : 'N/A'}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table>';
+                container.innerHTML = tableHTML;
+            }
+            
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredProcessos.length / itemsPerPage);
+            const paginationContainer = document.getElementById('paginationContainer');
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                paginationHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
+            }
+            
+            // Page numbers (show up to 15 pages)
+            const startPage = Math.max(1, currentPage - 7);
+            const endPage = Math.min(totalPages, startPage + 14);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                paginationHTML += `<button onclick="changePage(${currentPage + 1})">Próxima</button>`;
+            }
+            
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateProcessosList();
+        }
+
+        // Modal functions
+        let currentModalType = null;
+        let currentEditId = null;
+
+        function showAddModal(type) {
+            currentModalType = type;
+            currentEditId = null;
+            
+            document.getElementById('modalTitle').textContent = `Adicionar ${type === 'cadastrador' ? 'Cadastrador' : 'Assunto'}`;
+            document.getElementById('modalInput').value = '';
+            document.getElementById('modalInput').placeholder = `Nome do ${type === 'cadastrador' ? 'cadastrador' : 'assunto'}`;
+            
+            showModal();
+        }
+
+        function editCadastrador(id, nome) {
+            currentModalType = 'cadastrador';
+            currentEditId = id;
+            
+            document.getElementById('modalTitle').textContent = 'Editar Cadastrador';
+            document.getElementById('modalInput').value = nome;
+            document.getElementById('modalInput').placeholder = 'Nome do cadastrador';
+            
+            showModal();
+        }
+
+        function editAssunto(id, nome) {
+            currentModalType = 'assunto';
+            currentEditId = id;
+            
+            document.getElementById('modalTitle').textContent = 'Editar Assunto';
+            document.getElementById('modalInput').value = nome;
+            document.getElementById('modalInput').placeholder = 'Nome do assunto';
+            
+            showModal();
+        }
+
+        function showModal() {
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentModalType = null;
+            currentEditId = null;
+        }
+
+        function handleModalSubmit(e) {
+            e.preventDefault();
+            
+            const value = document.getElementById('modalInput').value.trim();
+            if (!value) {
+                return;
+            }
+            
+            if (currentEditId) {
+                // Update existing item
+                const ref = currentModalType === 'cadastrador' ? 'cadastradores' : 'assuntos';
+                database.ref(`${ref}/${currentEditId}`).set({ nome: value })
+                    .then(() => {
+                        hideModal();
+                    })
+                    .catch((error) => {
+                        alert('Erro ao atualizar: ' + error.message);
+                    });
+            } else {
+                // Add new item
+                const ref = currentModalType === 'cadastrador' ? 'cadastradores' : 'assuntos';
+                database.ref(ref).push({ nome: value })
+                    .then(() => {
+                        hideModal();
+                    })
+                    .catch((error) => {
+                        alert('Erro ao adicionar: ' + error.message);
+                    });
+            }
+        }
+
+        function deleteCadastrador(id) {
+            if (confirm('Tem certeza que deseja excluir este cadastrador?')) {
+                database.ref('cadastradores/' + id).remove()
+                    .then(() => {
+                        // Success handled by listener
+                    })
+                    .catch((error) => {
+                        alert('Erro ao excluir: ' + error.message);
+                    });
+            }
+        }
+
+        function deleteAssunto(id) {
+            if (confirm('Tem certeza que deseja excluir este assunto?')) {
+                database.ref('assuntos/' + id).remove()
+                    .then(() => {
+                        // Success handled by listener
+                    })
+                    .catch((error) => {
+                        alert('Erro ao excluir: ' + error.message);
+                    });
+            }
+        }
+
+        // Report functions
+        function showReportSection(sectionId) {
+            // Hide all report sections
+            document.querySelectorAll('#relatorios .card:not(:first-child)').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function generateIndividualReport() {
+            const cadastrador = document.getElementById('relCadastrador').value;
+            const dataInicial = document.getElementById('relDataInicial').value;
+            const dataFinal = document.getElementById('relDataFinal').value;
+            
+            if (!cadastrador || !dataInicial || !dataFinal) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            const cadastradorNome = cadastradores.find(c => c.id === cadastrador)?.nome || cadastrador;
+            
+            // Filter processos by cadastrador and date range
+            const filteredProcessos = processos.filter(processo => {
+                if (processo.cadastrador !== cadastrador) return false;
+                
+                const entradaDate = new Date(processo.entrada);
+                const startDate = new Date(dataInicial);
+                const endDate = new Date(dataFinal);
+                
+                return entradaDate >= startDate && entradaDate <= endDate;
+            });
+            
+            // Group by assunto
+            const assuntoStats = {};
+            let totalConcluido = 0;
+            let totalAberto = 0;
+            
+            filteredProcessos.forEach(processo => {
+                const assuntoNome = assuntos.find(a => a.id === processo.assunto)?.nome || processo.assunto;
+                
+                if (!assuntoStats[assuntoNome]) {
+                    assuntoStats[assuntoNome] = { concluido: 0, aberto: 0 };
+                }
+                
+                if (processo.saida) {
+                    assuntoStats[assuntoNome].concluido++;
+                    totalConcluido++;
+                } else {
+                    assuntoStats[assuntoNome].aberto++;
+                    totalAberto++;
+                }
+            });
+            
+            const totalProcessos = totalConcluido + totalAberto;
+            const percentualTotal = totalProcessos > 0 ? Math.round((totalConcluido / totalProcessos) * 100) : 0;
+            
+            // Generate report HTML
+            let reportHTML = `
+                <div class="report-summary">
+                    <div class="summary-item">
+                        <strong>Nome do Servidor:</strong>
+                        <span>${cadastradorNome}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Período:</strong>
+                        <span>${formatDate(dataInicial)} até ${formatDate(dataFinal)}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Total de Processos:</strong>
+                        <span>${totalProcessos}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Produtividade:</strong>
+                        <span>${percentualTotal}%</span>
+                    </div>
+                </div>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Assunto</th>
+                            <th>Concluído</th>
+                            <th>Aberto</th>
+                            <th>Total</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.keys(assuntoStats).forEach(assunto => {
+                const stats = assuntoStats[assunto];
+                const total = stats.concluido + stats.aberto;
+                const percentual = total > 0 ? Math.round((stats.concluido / total) * 100) : 0;
+                
+                reportHTML += `
+                    <tr>
+                        <td>${assunto}</td>
+                        <td>${stats.concluido}</td>
+                        <td>${stats.aberto}</td>
+                        <td>${total}</td>
+                        <td>${percentual}%</td>
+                    </tr>
+                `;
+            });
+            
+            reportHTML += `
+                    <tr style="font-weight: bold; background: var(--color-bg-2);">
+                        <td>TOTAL</td>
+                        <td>${totalConcluido}</td>
+                        <td>${totalAberto}</td>
+                        <td>${totalProcessos}</td>
+                        <td>${percentualTotal}%</td>
+                    </tr>
+                </tbody>
+            </table>
+            `;
+            
+            document.getElementById('relatorioIndividualResult').innerHTML = reportHTML;
+            document.getElementById('relatorioIndividualResult').classList.remove('hidden');
+        }
+
+        function generateCompleteReport() {
+            const dataInicial = document.getElementById('relCompDataInicial').value;
+            const dataFinal = document.getElementById('relCompDataFinal').value;
+            
+            if (!dataInicial || !dataFinal) {
+                alert('Por favor, preencha as datas.');
+                return;
+            }
+            
+            // Filter processos by date range
+            const filteredProcessos = processos.filter(processo => {
+                const entradaDate = new Date(processo.entrada);
+                const startDate = new Date(dataInicial);
+                const endDate = new Date(dataFinal);
+                
+                return entradaDate >= startDate && entradaDate <= endDate;
+            });
+            
+            // Get unique assuntos and cadastradores
+            const uniqueAssuntos = [...new Set(filteredProcessos.map(p => p.assunto))];
+            const uniqueCadastradores = [...new Set(filteredProcessos.map(p => p.cadastrador))];
+            
+            // Create stats matrix
+            const stats = {};
+            let totalConcluido = 0;
+            let totalAberto = 0;
+            
+            uniqueAssuntos.forEach(assunto => {
+                stats[assunto] = {};
+                uniqueCadastradores.forEach(cadastrador => {
+                    stats[assunto][cadastrador] = { concluido: 0, aberto: 0 };
+                });
+            });
+            
+            filteredProcessos.forEach(processo => {
+                if (processo.saida) {
+                    stats[processo.assunto][processo.cadastrador].concluido++;
+                    totalConcluido++;
+                } else {
+                    stats[processo.assunto][processo.cadastrador].aberto++;
+                    totalAberto++;
+                }
+            });
+            
+            const totalProcessos = totalConcluido + totalAberto;
+            const percentualTotal = totalProcessos > 0 ? Math.round((totalConcluido / totalProcessos) * 100) : 0;
+            
+            // Generate report HTML
+            let reportHTML = `
+                <div class="report-summary">
+                    <div class="summary-item">
+                        <strong>Período:</strong>
+                        <span>${formatDate(dataInicial)} até ${formatDate(dataFinal)}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Total de Processos:</strong>
+                        <span>${totalProcessos}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Processos Concluídos:</strong>
+                        <span>${totalConcluido}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Processos em Aberto:</strong>
+                        <span>${totalAberto}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>% de Conclusão:</strong>
+                        <span>${percentualTotal}%</span>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="table" style="min-width: 800px;">
+                        <thead>
+                            <tr>
+                                <th>Assunto</th>
+            `;
+            
+            uniqueCadastradores.forEach(cadastradorId => {
+                const cadastradorNome = cadastradores.find(c => c.id === cadastradorId)?.nome || cadastradorId;
+                const shortName = cadastradorNome.substring(0, 5);
+                reportHTML += `
+                    <th colspan="2">${shortName}</th>
+                `;
+            });
+            
+            reportHTML += `
+                            </tr>
+                            <tr>
+                                <th></th>
+            `;
+            
+            uniqueCadastradores.forEach(() => {
+                reportHTML += '<th>Con.</th><th>Aber.</th>';
+            });
+            
+            reportHTML += '</tr></thead><tbody>';
+            
+            uniqueAssuntos.forEach(assuntoId => {
+                const assuntoNome = assuntos.find(a => a.id === assuntoId)?.nome || assuntoId;
+                reportHTML += `<tr><td>${assuntoNome}</td>`;
+                
+                uniqueCadastradores.forEach(cadastradorId => {
+                    const assuntoStats = stats[assuntoId][cadastradorId];
+                    reportHTML += `<td>${assuntoStats.concluido}</td><td>${assuntoStats.aberto}</td>`;
+                });
+                
+                reportHTML += '</tr>';
+            });
+            
+            reportHTML += '</tbody></table></div>';
+            
+            document.getElementById('relatorioCompletoResult').innerHTML = reportHTML;
+            document.getElementById('relatorioCompletoResult').classList.remove('hidden');
+        }
+
+        function generateGraphics() {
+            const cadastrador = document.getElementById('grafCadastrador').value;
+            const dataInicial = document.getElementById('grafDataInicial').value;
+            const dataFinal = document.getElementById('grafDataFinal').value;
+            
+            if (!cadastrador || !dataInicial || !dataFinal) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Filter processos by cadastrador and date range
+            const filteredProcessos = processos.filter(processo => {
+                if (processo.cadastrador !== cadastrador) return false;
+                
+                const entradaDate = new Date(processo.entrada);
+                const startDate = new Date(dataInicial);
+                const endDate = new Date(dataFinal);
+                
+                return entradaDate >= startDate && entradaDate <= endDate;
+            });
+            
+            const concluidos = filteredProcessos.filter(p => p.saida).length;
+            const abertos = filteredProcessos.filter(p => !p.saida).length;
+            
+            // Pizza chart
+            const pizzaCtx = document.getElementById('pizzaChart').getContext('2d');
+            new Chart(pizzaCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Concluídos', 'Em Aberto'],
+                    datasets: [{
+                        data: [concluidos, abertos],
+                        backgroundColor: ['#1FB8CD', '#FFC185']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Processos - ${cadastradores.find(c => c.id === cadastrador)?.nome}`
+                        }
+                    }
+                }
+            });
+            
+            // Bar charts for all cadastradores
+            const allCadastradores = [...new Set(processos.map(p => p.cadastrador).filter(c => c))];
+            const cadastradorNames = [];
+            const concluidosCounts = [];
+            const abertosCounts = [];
+            
+            allCadastradores.forEach(cadastradorId => {
+                const cadastradorProcessos = processos.filter(p => {
+                    if (p.cadastrador !== cadastradorId) return false;
+                    
+                    const entradaDate = new Date(p.entrada);
+                    const startDate = new Date(dataInicial);
+                    const endDate = new Date(dataFinal);
+                    
+                    return entradaDate >= startDate && entradaDate <= endDate;
+                });
+                
+                const cadastradorNome = cadastradores.find(c => c.id === cadastradorId)?.nome || cadastradorId;
+                cadastradorNames.push(cadastradorNome.substring(0, 10));
+                concluidosCounts.push(cadastradorProcessos.filter(p => p.saida).length);
+                abertosCounts.push(cadastradorProcessos.filter(p => !p.saida).length);
+            });
+            
+            // Concluídos bar chart
+            const concluidoCtx = document.getElementById('barrasConcluidoChart').getContext('2d');
+            new Chart(concluidoCtx, {
+                type: 'bar',
+                data: {
+                    labels: cadastradorNames,
+                    datasets: [{
+                        label: 'Concluídos',
+                        data: concluidosCounts,
+                        backgroundColor: '#1FB8CD'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Processos Concluídos por Cadastrador'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Abertos bar chart
+            const abertoCtx = document.getElementById('barrasAbertoChart').getContext('2d');
+            new Chart(abertoCtx, {
+                type: 'bar',
+                data: {
+                    labels: cadastradorNames,
+                    datasets: [{
+                        label: 'Em Aberto',
+                        data: abertosCounts,
+                        backgroundColor: '#FFC185'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Processos em Aberto por Cadastrador'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('graficosContainer').classList.remove('hidden');
+        }
+
+        // Utility functions
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'error-message';
+            element.classList.remove('hidden');
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'success-message';
+            element.classList.remove('hidden');
+            
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 3000);
+        }
+
+        function hideError(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.add('hidden');
+        }
+
+        // Make functions global for onclick handlers
+        window.changePage = changePage;
+        window.editCadastrador = editCadastrador;
+        window.editAssunto = editAssunto;
+        window.deleteCadastrador = deleteCadastrador;
+        window.deleteAssunto = deleteAssunto;
+    </script>
 </body>
 </html>
