@@ -86,23 +86,38 @@ function setupEventListeners() {
 }
 
 async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorDiv = document.getElementById('login-error');
+  e.preventDefault();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const errorDiv = document.getElementById("login-error");
 
-    try {
-        showLoading(true);
-        await auth.signInWithEmailAndPassword(email, password);
-        errorDiv.style.display = 'none';
-    } catch (error) {
-        console.error('Login error:', error);
-        errorDiv.textContent = 'Erro ao fazer login. Verifique suas credenciais.';
-        errorDiv.style.display = 'block';
-    } finally {
-        showLoading(false);
-    }
+  // Mapeamento dos nomes de usuário para e-mails cadastrados
+  const userMap = {
+    "Admin": "seplan.cadastro@valadares.mg.gov.br",
+    "Consulta": "consulta@hotmail.com"
+  };
+
+  const email = userMap[username];
+
+  if (!email) {
+    errorDiv.textContent = "Usuário inválido. Tente novamente.";
+    errorDiv.style.display = "block";
+    return;
+  }
+
+  try {
+    showLoading(true);
+    await auth.signInWithEmailAndPassword(email, password);
+    errorDiv.style.display = "none";
+  } catch (error) {
+    console.error("Login error:", error);
+    errorDiv.textContent = "Erro ao fazer login. Verifique suas credenciais.";
+    errorDiv.style.display = "block";
+  } finally {
+    showLoading(false);
+  }
 }
+
 
 function handleUserLogin(user) {
     currentUser = user;
