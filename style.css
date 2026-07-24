@@ -1478,9 +1478,12 @@ display: block;
 }
 
 .login-card {
-  background: rgba(255,255,255,0.55);  /* branco, 40% opacidade */
-  box-shadow: 0 4px 32px rgba(0,0,0,0.9);
-  /* pode mexer no border-radius, padding etc se quiser */
+  background: rgba(255, 255, 255, 0.6); /* branco, 40% opacidade */
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.9);
+  width: 100%;
+  max-width: 400px; /* Ajuste este valor para deixar o box mais largo ou estreito */
+  padding: var(--space-32); /* Aumenta o espaço interno para dar proporção */
+  border-radius: var(--radius-lg);
 }
 
 .login-title {
@@ -3055,3 +3058,48 @@ resize: vertical;
     white-space: normal !important;
     word-break: break-word;
 } width: 95%; max-height: 90vh; overflow-y: auto; }
+/* ---- ADIÇÕES DE ESTILO ---- */
+
+/* Expansão de Linha (Consulta Pública) */
+.details-row td {
+    padding: 0 !important;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.expanded-details {
+    background: var(--color-bg-1);
+    padding: var(--space-16);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.expanded-details h4 {
+    color: var(--color-primary);
+    margin-bottom: var(--space-12);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-8);
+}
+
+.expanded-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-12);
+}
+
+.expanded-details-grid p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.expanded-details-grid p strong {
+    color: var(--color-slate-900);
+}
+
+/* Ocultar inputs date padrão em navegadores que os renderizam mal (esconderemos a parte de texto e usaremos só o picker) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}

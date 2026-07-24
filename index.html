@@ -3,281 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Cadastro Técnico</title>
+    <title>Sistema de Cadastro e Consultas</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div id="app">
-        <!-- Login Screen -->
-        <div id="login-screen" class="login-container">
-            <div class="login-box">
-                <div class="logo-container">
-                    <h1>Sistema de Cadastro Técnico</h1>
-                    <p>Departamento de Cadastro Técnico - Prefeitura de Governador Valadares</p>
-                </div>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="username" class="form-label">Usuário</label>
-                        <select id="username" name="username" class="form-control" required>
-                          <option value="" disabled selected>Selecione o usuário</option>
-                          <option value="Admin">Admin</option>
-                          <option value="Consulta">Consulta</option>
-                        </select>
-                    </div>
-					
-                    <div class="form-group">
-                        <label for="password" class="form-label">Senha</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn--primary btn--full-width">Entrar</button>
-                </form>
-                <div id="login-error" class="status status--error" style="display: none;"></div>
-            </div>
-        </div>
-
-        <!-- Main Application -->
-        <div id="main-app" class="app-container" style="display: none;">
-            <!-- Sidebar -->
-            <nav class="sidebar">
-                <div class="sidebar-header">
-                    <h3>Cadastro Técnico</h3>
-                    <p id="user-name"></p>
-                </div>
-                <ul class="sidebar-menu">
-                    <li><button class="menu-btn active" data-tab="dashboard">Dashboard</button></li>
-                    <li id="menu-configuracoes"><button class="menu-btn" data-tab="configuracoes">Configurações</button></li>
-                    <li id="menu-cadastro"><button class="menu-btn" data-tab="cadastro">Cadastro de Processo</button></li>
-                    <li id="menu-editar"><button class="menu-btn" data-tab="editar">Editar Processo</button></li>
-                    <li><button class="menu-btn" data-tab="consulta">Consulta</button></li>
-                    <li><button class="menu-btn" data-tab="basedados">Base de Dados</button></li>
-                    <li id="menu-relatorios"><button class="menu-btn" data-tab="relatorios">Relatórios</button></li>
-                    <li><button class="menu-btn logout" onclick="logout()">Sair</button></li>
-                </ul>
-            </nav>
-
-            <!-- Main Content -->
-            <main class="main-content">
-                <!-- Dashboard Tab -->
-                <div id="dashboard-tab" class="tab-content active">
-                    <h2>Dashboard</h2>
-                    <div class="dashboard-stats">
-                        <div class="stat-card">
-                            <h3 id="total-processos">0</h3>
-                            <p>Total de Processos</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="processos-concluidos">0</h3>
-                            <p>Processos Concluídos</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="processos-andamento">0</h3>
-                            <p>Processos em Andamento</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="processos-ano">0</h3>
-                            <p>Processos do Ano</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Configurações Tab -->
-                <div id="configuracoes-tab" class="tab-content">
-                    <h2>Configurações</h2>
-                    <div class="config-section">
-                        <h3>Cadastradores</h3>
-                        <button class="btn btn--primary" onclick="showAddCadastradorModal()">Adicionar Cadastrador</button>
-                        <div id="cadastradores-list" class="config-list"></div>
-                    </div>
-                    <div class="config-section">
-                        <h3>Assuntos</h3>
-                        <button class="btn btn--primary" onclick="showAddAssuntoModal()">Adicionar Assunto</button>
-                        <div id="assuntos-list" class="config-list"></div>
-                    </div>
-                </div>
-
-                <!-- Cadastro Tab -->
-                <div id="cadastro-tab" class="tab-content">
-                    <h2>Cadastro de Processo</h2>
-                    <form id="cadastro-form" class="process-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="nprocesso" class="form-label">Nº do Processo *</label>
-                                <input type="text" id="nprocesso" name="nprocesso" class="form-control" placeholder="00000/0000" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="ctm" class="form-label">CTM</label>
-                                <input type="text" id="ctm" name="ctm" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="assunto" class="form-label">Assunto *</label>
-                                <select id="assunto" name="assunto" class="form-control" required>
-                                    <option value="">Selecione um assunto</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="entrada" class="form-label">Entrada</label>
-                                <input type="date" id="entrada" name="entrada" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="vistoria" class="form-label">Vistoria</label>
-                                <input type="date" id="vistoria" name="vistoria" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="cadastrador" class="form-label">Cadastrador</label>
-                                <select id="cadastrador" name="cadastrador" class="form-control">
-                                    <option value="">Selecione um cadastrador</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="primeira-visita" class="form-label">1ª Visita</label>
-                                <input type="date" id="primeira-visita" name="primeiraVisita" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="segunda-visita" class="form-label">2ª Visita</label>
-                                <input type="date" id="segunda-visita" name="segundaVisita" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="terceira-visita" class="form-label">3ª Visita</label>
-                                <input type="date" id="terceira-visita" name="terceiraVisita" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="saida" class="form-label">Saída</label>
-                                <input type="date" id="saida" name="saida" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="destino" class="form-label">Destino</label>
-                                <input type="text" id="destino" name="destino" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="status" class="form-label">Status</label>
-                                <select id="status" name="status" class="form-control">
-                                    <option value="">Selecione o status</option>
-                                    <option value="Concluído">Concluído</option>
-                                    <option value="Em tramitação">Em tramitação</option>
-                                </select>
-                            </div>
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-card card">
+                <div class="card__body text-center">
+                    <h1 class="login-title">Cadastro GV</h1>
+                    <p class="login-subtitle">PMGV</p>
+                    
+                    <form id="login-form" class="login-form text-left mt-8">
+                        <div class="form-group">
+                            <label class="form-label">Usuário:</label>
+                            <select id="login-usuario" class="form-control" required>
+                                <option value="">Selecione o usuário</option>
+                                <option value="Cadastro">Cadastro</option>
+                                <option value="Admin">Admin</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="observacao" class="form-label">Observação</label>
-                            <textarea id="observacao" name="obs" class="form-control" rows="4"></textarea>
+                            <label class="form-label">Senha:</label>
+                            <input type="password" id="login-password" class="form-control" required placeholder="Digite sua senha">
                         </div>
-                        <button type="submit" class="btn btn--primary">Salvar Processo</button>
+                        <button type="submit" id="login-btn" class="btn btn--primary btn--full-width mt-8">Entrar</button>
                     </form>
-                </div>
-
-                <!-- Editar Tab -->
-                <div id="editar-tab" class="tab-content">
-                    <h2>Editar Processo</h2>
-                    <div class="search-section">
-                        <div class="form-group">
-                            <label for="search-processo" class="form-label">Buscar Processo</label>
-                            <input type="text" id="search-processo" class="form-control" placeholder="Digite o número do processo (00000/0000)">
-                            <button type="button" class="btn btn--primary" onclick="searchProcess()">Buscar</button>
-                        </div>
-                    </div>
-                    <div id="edit-form-container" style="display: none;">
-                        <form id="edit-form" class="process-form">
-                            <!-- Same form structure as cadastro but for editing -->
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Consulta Tab -->
-                <div id="consulta-tab" class="tab-content">
-                    <h2>Consulta</h2>
-                    <div class="search-section">
-                        <div class="form-group">
-                            <label for="consulta-processo" class="form-label">Buscar Processo</label>
-                            <input type="text" id="consulta-processo" class="form-control" placeholder="Digite o número do processo (00000/0000)">
-                            <button type="button" class="btn btn--primary" onclick="consultProcess()">Consultar</button>
-                        </div>
-                    </div>
-                    <div id="consulta-result" class="process-details"></div>
-                </div>
-
-                <!-- Base de Dados Tab -->
-                <div id="basedados-tab" class="tab-content">
-                    <h2>Base de Dados</h2>
-                    <div class="filters-section">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="filter-cadastrador" class="form-label">Cadastrador</label>
-                                <select id="filter-cadastrador" class="form-control">
-                                    <option value="">Todos</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filter-data-inicio" class="form-label">Data Inicial</label>
-                                <input type="date" id="filter-data-inicio" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="filter-data-fim" class="form-label">Data Final</label>
-                                <input type="date" id="filter-data-fim" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="filter-assunto" class="form-label">Assunto</label>
-                                <select id="filter-assunto" class="form-control">
-                                    <option value="">Todos</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button type="button" class="btn btn--primary" onclick="applyFilters()">Filtrar</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="database-info" class="database-info"></div>
-                    <div id="processes-table" class="table-container"></div>
-                    <div id="pagination" class="pagination-container"></div>
-                </div>
-
-                <!-- Relatórios Tab -->
-                <div id="relatorios-tab" class="tab-content">
-                    <h2>Relatórios</h2>
-                    <div class="reports-menu">
-                        <button class="btn btn--secondary report-option" onclick="showRelatorioIndividual()">Relatório Individual</button>
-                        <button class="btn btn--secondary report-option" onclick="showRelatorioCompleto()">Relatório Completo</button>
-                        <button class="btn btn--secondary report-option" onclick="showGraficos()">Gráficos</button>
-                        <button class="btn btn--secondary report-option" onclick="showPorAssunto()">Por Assunto</button>
-                    </div>
-                    <div id="report-content" class="report-content"></div>
-                </div>
-            </main>
-        </div>
-
-        <!-- Modals -->
-        <div id="modal-overlay" class="modal-overlay" style="display: none;">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3 id="modal-title">Modal</h3>
-                    <button class="modal-close" onclick="closeModal()">&times;</button>
-                </div>
-                <div class="modal-body" id="modal-body">
-                    <!-- Dynamic content -->
+                    <button id="btn-open-consulta" class="btn btn--secondary btn--full-width mt-8">Consulta de Processos</button>
+                    <div id="login-error" class="error-message hidden"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- Loading -->
-        <div id="loading" class="loading" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Carregando...</p>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="app.js"></script>
+    <!-- TELA DE CONSULTA PÚBLICA -->
+    <div id="consulta-screen" class="screen">
+        <div class="container-fluid mt-8">
+            <div class="card">
+                <div class="card__header flex justify-between items-center">
+                    <h2>Consulta de Entradas</h2>
+                    <button class="btn btn--outline btn-voltar-login">Voltar ao Login</button>
+                </div>
+                <div class="card__body">
+                    <div class="flex gap-16 mb-8 flex-wrap">
+                        <input type="text" id="consulta-ctm" class="form-control" placeholder="Buscar por CTM" style="flex: 1; min-width: 200px;">
+                        <input type="text" id="consulta-processo" class="form-control" placeholder="Buscar por Nº Processo" style="flex: 1; min-width: 200px;">
+                        <select id="consulta-funcionario" class="form-control dyn-funcionarios" style="flex: 1; min-width: 200px;">
+                            <option value="">Buscar por Funcionário</option>
+                        </select>
+                        <button id="btn-consultar-publico" class="btn btn--primary">Consultar</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">+</th>
+                                    <th>CTM</th><th>Nº Processo</th><th class="col-assunto">Assunto</th><th>Entrada</th><th>Funcionário</th><th>Status</th><th>Data Status</th><th>Dias Status</th><th>Destino</th><th class="col-detalhes">Detalhes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-consulta-publica"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-screen" class="screen">
+        <div class="screen-header">
+            <div class="container flex justify-between items-center">
+                <h2>Dashboard</h2>
+                <div class="flex items-center gap-16">
+                    <span id="user-info"></span>
+                    <button id="btn-logout" class="btn btn--outline">Sair</button>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="dashboard-buttons mt-8">
+                <button class="btn btn--success btn--lg" onclick="nav('cadastro')">Cadastro</button>
+                <button class="btn btn--warning btn--lg" onclick="nav('edicao')">Edição</button>
+                <button class="btn btn--primary btn--lg" onclick="nav('pesquisa')">Pesquisa</button>
+                <button class="btn btn--secondary btn--lg" onclick="nav('base')">Base de Dados</button>
+                <button class="btn btn--info btn--lg" onclick="nav('estatisticas')">Estatísticas</button>
+                <button class="btn btn--outline btn--lg" onclick="nav('configuracoes')">Configurações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE CADASTRO -->
+    <div id="cadastro-screen" class="screen">
+        <div class="screen-header"><div class="container flex justify-between items-center"><h2>Nova Entrada</h2><button class="btn btn--outline" onclick="nav('dashboard')">Voltar</button></div></div>
+        <div class="container mt-8">
+            <form id="form-cadastro" class="card form-container">
+                <div class="card__body">
+                    <div class="filters-row">
+                        <div class="form-group"><label>CTM (9 dígitos)</label><input type="text" id="cad-ctm" class="form-control" maxlength="12"></div>
+                        <div class="form-group"><label>Nº de Processo *</label><input type="text" id="cad-processo" class="form-control" required placeholder="00000/0000"></div>
+                        <div class="form-group"><label>Assunto *</label><select id="cad-assunto" class="form-control dyn-assuntos" required></select></div>
+                        <div class="form-group"><label>Data de Entrada</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-entrada" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-entrada').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Funcionário</label><select id="cad-funcionario" class="form-control dyn-funcionarios"></select></div>
+                        <div class="form-group"><label>Status</label><select id="cad-status" class="form-control dyn-status"></select></div>
+                        <div class="form-group"><label>Data Status</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-data-status" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-data-status').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Vistoria</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-vistoria" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-vistoria').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>1ª Vistoria</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-v1" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-v1').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>2ª Vistoria</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-v2" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-v2').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>3ª Vistoria</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-v3" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-v3').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Data Saída</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="cad-saida" class="form-control date-mask" placeholder="dd/mm/aaaa" maxlength="10">
+                                <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('cad-saida').value = formatDateToBR(this.value)">
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Destino</label><select id="cad-destino" class="form-control dyn-destinos"></select></div>
+                    </div>
+                    <div class="form-group mt-8">
+                        <label>Observação</label>
+                        <textarea id="cad-obs" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn--success btn--full-width mt-8">Salvar Nova Entrada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TELA DE TABELA GERAL (Base, Edição, Pesquisa) -->
+    <div id="tabela-geral-screen" class="screen">
+        <div class="screen-header"><div class="container-fluid flex justify-between items-center"><h2 id="titulo-tabela">Base de Dados</h2><button class="btn btn--outline" onclick="nav('dashboard')">Voltar</button></div></div>
+        <div class="container-fluid mt-8">
+            <div class="card mb-8">
+                <!-- Filtros Principais Reduzidos -->
+                <div class="card__body flex gap-16 flex-wrap" id="filtros-container">
+                    <input type="text" id="filtro-ctm" class="form-control" placeholder="CTM" style="max-width: 250px;">
+                    <input type="text" id="filtro-proc" class="form-control" placeholder="Nº Processo" style="max-width: 250px;">
+                    <button id="btn-filtrar-geral" class="btn btn--primary">Pesquisar</button>
+                </div>
+            </div>
+            <div class="card">
+                <!-- Filtros Inferiores (Colunas) -->
+                <div class="card__header flex gap-8 flex-wrap" style="background: var(--color-bg-1);">
+                    <select id="col-filter-assunto" class="form-control dyn-assuntos" style="max-width: 200px;"><option value="">Filtrar Assunto...</option></select>
+                    <select id="col-filter-func" class="form-control dyn-funcionarios" style="max-width: 200px;"><option value="">Filtrar Funcionário...</option></select>
+                    <select id="col-filter-status" class="form-control dyn-status" style="max-width: 150px;"><option value="">Filtrar Status...</option></select>
+                    <select id="col-filter-destino" class="form-control dyn-destinos" style="max-width: 150px;"><option value="">Filtrar Destino...</option></select>
+                    <select id="col-filter-datamask" class="form-control" style="max-width: 180px;"><option value="">Filtrar Mês/Ano (Data Status)...</option></select>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr id="thead-geral"></tr>
+                        </thead>
+                        <tbody id="tbody-geral"></tbody>
+                    </table>
+                </div>
+                <div class="card__footer flex justify-between items-center" style="padding: 16px; background: var(--color-surface); border-top: 1px solid var(--color-border);">
+                    <span id="page-info" style="font-weight: 500; color: var(--color-text-secondary);">Mostrando página 1</span>
+                    <div class="flex gap-8">
+                        <button id="btn-prev-page" class="btn btn--outline" onclick="mudarPagina(-1)">Anterior</button>
+                        <button id="btn-next-page" class="btn btn--outline" onclick="mudarPagina(1)">Próxima</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE ESTATÍSTICAS -->
+    <div id="estatisticas-screen" class="screen">
+        <div class="screen-header"><div class="container-fluid flex justify-between items-center"><h2>Estatísticas</h2><button class="btn btn--outline" onclick="nav('dashboard')">Voltar</button></div></div>
+        <div class="container-fluid mt-8">
+            <div class="stats-summary-grid mb-8">
+                <div class="card stat-card"><div class="card__body text-center"><h3>Total Entradas</h3><p id="st-total" class="font-size-3xl">0</p></div></div>
+                <div class="card stat-card"><div class="card__body text-center"><h3>Mensais</h3><p id="st-mensal" class="font-size-3xl">0</p></div></div>
+                <div class="card stat-card"><div class="card__body text-center"><h3>Concluídos (Total)</h3><p id="st-concl" class="font-size-3xl">0</p></div></div>
+                <div class="card stat-card"><div class="card__body text-center"><h3>Concluídos (Mês)</h3><p id="st-concl-mes" class="font-size-3xl">0</p></div></div>
+            </div>
+            
+            <div class="card mb-8">
+                <div class="card__body">
+                    <label>Selecione o Funcionário:</label>
+                    <select id="stat-funcionario" class="form-control dyn-funcionarios" style="max-width: 400px;"></select>
+                    <div class="table-container mt-8">
+                        <table class="data-table">
+                            <thead><tr><th>Assunto</th><th>QTD</th><th>Mensal</th><th>Anual</th><th>Total Setor Mês</th><th>% Mês</th><th>Total Setor Ano</th><th>% Ano</th><th>Concluídos</th><th>Concl. Mês</th><th>Concl. Ano</th></tr></thead>
+                            <tbody id="tbody-stats-func"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-8">
+                <div class="card__body">
+                    <label>Selecione o Assunto (Estatísticas por Funcionários):</label>
+                    <select id="stat-assunto-filter" class="form-control dyn-assuntos" style="max-width: 400px;"></select>
+                    <div class="table-container mt-8">
+                        <table class="data-table">
+                            <thead><tr><th>Funcionário</th><th>QTD Total</th><th>Mensal</th><th>Anual</th><th>Concluídos (Total)</th><th>Concl. (Mês)</th><th>Concl. (Ano)</th></tr></thead>
+                            <tbody id="tbody-stats-assunto"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters-row">
+                <div class="card"><div class="card__header"><h4>Top 6 Assuntos (Mês)</h4></div><div class="card__body"><canvas id="chart1"></canvas></div></div>
+                <div class="card"><div class="card__header"><h4>Top 6 Funcionários (Entradas Mês)</h4></div><div class="card__body"><canvas id="chart2"></canvas></div></div>
+                <div class="card"><div class="card__header"><h4>Top 6 Funcionários (Concluídos Mês)</h4></div><div class="card__body"><canvas id="chart3"></canvas></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE CONFIGURAÇÕES -->
+    <div id="configuracoes-screen" class="screen">
+        <div class="screen-header">
+            <div class="container flex justify-between items-center">
+                <h2>Configurações do Sistema</h2>
+                <button class="btn btn--outline" onclick="nav('dashboard')">Voltar</button>
+            </div>
+        </div>
+        <div class="container mt-8">
+            <div class="filters-row">
+                <div class="card">
+                    <div class="card__header"><h4>Assuntos</h4></div>
+                    <div class="card__body">
+                        <div class="flex gap-8 mb-8"><input type="text" id="novo-assunto" class="form-control" placeholder="Novo assunto..."><button class="btn btn--success" onclick="addConfigItem('Assuntos', 'novo-assunto')">+</button></div>
+                        <ul id="lista-assuntos" class="guide-list" style="max-height: 250px; overflow-y: auto;"></ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header"><h4>Funcionários</h4></div>
+                    <div class="card__body">
+                        <div class="flex gap-8 mb-8"><input type="text" id="novo-funcionario" class="form-control" placeholder="Novo funcionário..."><button class="btn btn--success" onclick="addConfigItem('Cadastradores', 'novo-funcionario')">+</button></div>
+                        <ul id="lista-funcionarios" class="guide-list" style="max-height: 250px; overflow-y: auto;"></ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header"><h4>Status</h4></div>
+                    <div class="card__body">
+                        <div class="flex gap-8 mb-8"><input type="text" id="novo-status" class="form-control" placeholder="Novo status..."><button class="btn btn--success" onclick="addConfigItem('Status', 'novo-status')">+</button></div>
+                        <ul id="lista-status" class="guide-list" style="max-height: 250px; overflow-y: auto;"></ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header"><h4>Destinos</h4></div>
+                    <div class="card__body">
+                        <div class="flex gap-8 mb-8"><input type="text" id="novo-destino" class="form-control" placeholder="Novo destino..."><button class="btn btn--success" onclick="addConfigItem('Destinos', 'novo-destino')">+</button></div>
+                        <ul id="lista-destinos" class="guide-list" style="max-height: 250px; overflow-y: auto;"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modal-edicao" class="modal hidden">
+        <div class="modal-content modal-content--large">
+            <div class="modal-header"><h3>Editar Entrada</h3></div>
+            <div class="modal-body" id="modal-edicao-body"></div>
+            <div class="modal-footer"><button id="btn-salvar-edicao" class="btn btn--success">Salvar Edição</button><button class="btn btn--outline" onclick="document.getElementById('modal-edicao').classList.add('hidden')">Cancelar</button></div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>

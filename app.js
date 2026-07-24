@@ -1,4 +1,10 @@
-// Firebase Configuration
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getDatabase, ref, push, set, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+// =========================================================================
+// CONFIGURAÇÃO FIREBASE
+// =========================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyDIMziMEygrNUc3VeYxLOyj98JSMyeEkI8",
     authDomain: "cadastro-39a2b.firebaseapp.com",
@@ -6,1410 +12,945 @@ const firebaseConfig = {
     projectId: "cadastro-39a2b",
     storageBucket: "cadastro-39a2b.firebasestorage.app",
     messagingSenderId: "457985275329",
-    appId: "1:457985275329:web:3f830cce90394d93e76b40",
-    measurementId: "G-M9EJJJZL5V"
+    appId: "1:457985275329:web:3f830cce90394d93e76b40"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-// Global variables
-let currentUser = null;
-let currentUserRole = null;
-let allProcesses = {};
-let assuntos = [];
-let cadastradores = [];
+// =========================================================================
+// VARIÁVEIS GLOBAIS
+// =========================================================================
+let configData = { Assuntos: [], Cadastradores: [], Status: ["Concluído", "Em andamento", "Parado"], Destinos: ["SAG", "GAE"] };
+let processosData = [];
+let currentMode = ''; 
+let charts = [];
+
 let currentPage = 1;
-const itemsPerPage = 500;
-let filteredProcesses = [];
+const itemsPerPage = 50;
+let filteredList = []; 
 
-// User roles configuration
-const userRoles = {
-    'seplan.cadastro@valadares.mg.gov.br': {
-        role: 'gestor',
-        name: 'Gestor',
-        access: ['dashboard', 'configuracoes', 'cadastro', 'editar', 'consulta', 'basedados', 'relatorios']
-    },
-    'wendel_hai@hotmail.com': {
-        role: 'admin', 
-        name: 'Admin',
-        access: ['dashboard', 'configuracoes', 'cadastro', 'editar', 'consulta', 'basedados', 'relatorios']
-    },
-    'consulta@hotmail.com': {
-        role: 'consulta',
-        name: 'Consulta',
-        access: ['dashboard', 'consulta', 'basedados']
-    }
+let currentSortColumn = null;
+let currentSortDirection = 'desc';
+
+// =========================================================================
+// UTILITÁRIOS E MÁSCARAS
+// =========================================================================
+window.formatDateToBR = function(dateStr) { 
+    if(!dateStr) return '';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
 };
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+// Máscara Automática de Datas para inputs com a classe 'date-mask'
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.classList.contains('date-mask')) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 8) v = v.slice(0, 8);
+        if (v.length > 4) {
+            v = v.replace(/^(\d{2})(\d{2})(\d+)/, "$1/$2/$3");
+        } else if (v.length > 2) {
+            v = v.replace(/^(\d{2})(\d+)/, "$1/$2");
+        }
+        e.target.value = v;
+    }
 });
 
-function initializeApp() {
-    // Auth state observer
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            handleUserLogin(user);
-        } else {
-            showLoginScreen();
-        }
-    });
+function formatProcessoParaDB(proc) { return proc ? proc.toString().replace(/\//g, '-') : ''; }
+function formatProcessoParaTela(proc) { return proc ? proc.toString().replace(/-/g, '/') : ''; }
 
-    // Setup event listeners
-    setupEventListeners();
-}
-
-function setupEventListeners() {
-    // Login form
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
+function formatDateBR(dateStr) {
+    if (!dateStr) return '';
+    let limpo = dateStr.toString().replace(/-/g, '/');
+    let parts = limpo.split('/');
+    if (parts.length === 3) {
+        if (parts[0].length === 4) return `${parts[2].padStart(2,'0')}/${parts[1].padStart(2,'0')}/${parts[0]}`;
+        return `${parts[0].padStart(2,'0')}/${parts[1].padStart(2,'0')}/${parts[2]}`;
     }
-
-    // Menu buttons
-    document.querySelectorAll('.menu-btn:not(.logout)').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const tab = e.target.getAttribute('data-tab');
-            showTab(tab);
-        });
-    });
-
-    // Form submissions
-    const cadastroForm = document.getElementById('cadastro-form');
-    if (cadastroForm) {
-        cadastroForm.addEventListener('submit', handleCadastroSubmit);
-    }
+    return dateStr;
 }
 
-async function handleLogin(e) {
-  e.preventDefault();
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value;
-  const errorDiv = document.getElementById("login-error");
-
-  // Mapeamento dos nomes de usuário para e-mails cadastrados
-  const userMap = {
-    "Admin": "seplan.cadastro@valadares.mg.gov.br",
-    "Consulta": "consulta@hotmail.com"
-  };
-
-  const email = userMap[username];
-
-  if (!email) {
-    errorDiv.textContent = "Usuário inválido. Tente novamente.";
-    errorDiv.style.display = "block";
-    return;
-  }
-
-  try {
-    showLoading(true);
-    await auth.signInWithEmailAndPassword(email, password);
-    errorDiv.style.display = "none";
-  } catch (error) {
-    console.error("Login error:", error);
-    errorDiv.textContent = "Erro ao fazer login. Verifique suas credenciais.";
-    errorDiv.style.display = "block";
-  } finally {
-    showLoading(false);
-  }
+function parseDateBR(dateStr) {
+    if(!dateStr) return null;
+    const formatted = formatDateBR(dateStr);
+    const parts = formatted.split('/');
+    if(parts.length !== 3) return null;
+    return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
+function calcularDias(dataEntradaStr) {
+    const dataEnt = parseDateBR(dataEntradaStr);
+    if(!dataEnt) return 0;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    dataEnt.setHours(0, 0, 0, 0);
+    return Math.floor(Math.abs(hoje - dataEnt) / (1000 * 60 * 60 * 24));
+}
 
-function handleUserLogin(user) {
-    currentUser = user;
-    const userConfig = userRoles[user.email];
+function maskCTM(value) {
+    if (!value) return '';
+    let digits = value.toString().replace(/\D/g, '');
+    if (digits.length === 9) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5)}`;
+    return value;
+}
+
+function normalizeCTM(ctm) {
+    return ctm ? ctm.toString().replace(/[\.\-\/\s]/g, '').toLowerCase() : '';
+}
+
+// =========================================================================
+// NAVEGAÇÃO
+// =========================================================================
+window.nav = function(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     
-    if (!userConfig) {
-        console.error('User not authorized:', user.email);
-        logout();
-        return;
-    }
-
-    currentUserRole = userConfig;
-    setupUserInterface();
-    loadInitialData();
-    showMainApp();
-}
-
-function setupUserInterface() {
-    // Set user name
-    document.getElementById('user-name').textContent = currentUserRole.name;
-    
-    // Show/hide menu items based on access
-    const menuItems = {
-        'menu-configuracoes': 'configuracoes',
-        'menu-cadastro': 'cadastro', 
-        'menu-editar': 'editar',
-        'menu-relatorios': 'relatorios'
-    };
-
-    Object.entries(menuItems).forEach(([menuId, access]) => {
-        const menuItem = document.getElementById(menuId);
-        if (menuItem) {
-            if (currentUserRole.access.includes(access)) {
-                menuItem.style.display = 'block';
-            } else {
-                menuItem.style.display = 'none';
-            }
-        }
-    });
-}
-
-async function loadInitialData() {
-    try {
-        showLoading(true);
-        
-        // Load assuntos and cadastradores
-        const assuntosSnapshot = await database.ref('Assuntos').once('value');
-        const cadastradoresSnapshot = await database.ref('Cadastradores').once('value');
-        const processosSnapshot = await database.ref('processos').once('value');
-
-        assuntos = assuntosSnapshot.val() || [];
-        cadastradores = cadastradoresSnapshot.val() || [];
-        allProcesses = processosSnapshot.val() || {};
-
-        // Populate dropdowns
-        populateDropdowns();
-        
-        // Update dashboard stats
-        updateDashboardStats();
-        
-        // Load configurations if user has access
-        if (currentUserRole.access.includes('configuracoes')) {
-            loadConfigurations();
-        }
-        
-    } catch (error) {
-        console.error('Error loading data:', error);
-    } finally {
-        showLoading(false);
+    if(['login', 'consulta', 'dashboard', 'cadastro', 'estatisticas', 'configuracoes'].includes(screenId)) {
+        document.getElementById(screenId + '-screen').classList.add('active');
+        if(screenId === 'configuracoes') renderConfigLists();
+        if(screenId === 'estatisticas') renderStats();
+    } else {
+        document.getElementById('tabela-geral-screen').classList.add('active');
+        setupTabelaGeral(screenId);
     }
 }
 
-function populateDropdowns() {
-    // Populate assunto dropdowns
-    const assuntoSelects = document.querySelectorAll('#assunto, #filter-assunto');
-    assuntoSelects.forEach(select => {
-        // Keep the first option (placeholder)
-        const placeholder = select.querySelector('option[value=""]');
-        select.innerHTML = '';
-        if (placeholder) {
-            select.appendChild(placeholder);
-        }
-        
-        assuntos.forEach(assunto => {
-            const option = document.createElement('option');
-            option.value = assunto;
-            option.textContent = assunto;
-            select.appendChild(option);
-        });
-    });
+// =========================================================================
+// AUTENTICAÇÃO
+// =========================================================================
+const USER_MAPPING = { "Cadastro": "seplan.cadastro@valadares.mg.gov.br", "Admin": "admin@hotmail.com" };
 
-    // Populate cadastrador dropdowns
-    const cadastradorSelects = document.querySelectorAll('#cadastrador, #filter-cadastrador');
-    cadastradorSelects.forEach(select => {
-        // Keep the first option (placeholder)
-        const placeholder = select.querySelector('option[value=""]');
-        select.innerHTML = '';
-        if (placeholder) {
-            select.appendChild(placeholder);
-        }
-        
-        cadastradores.forEach(cadastrador => {
-            const option = document.createElement('option');
-            option.value = cadastrador;
-            option.textContent = cadastrador;
-            select.appendChild(option);
-        });
-    });
-}
-
-function updateDashboardStats() {
-    const processArray = Object.values(allProcesses);
-    const currentYear = new Date().getFullYear();
-    
-    const totalProcessos = processArray.length;
-    const processosConcluidos = processArray.filter(p => p.saida && p.saida.trim() !== '').length;
-    const processosAndamento = totalProcessos - processosConcluidos;
-    const processosAno = processArray.filter(p => {
-        if (!p.entrada) return false;
-        const entradaYear = new Date(p.entrada).getFullYear();
-        return entradaYear === currentYear;
-    }).length;
-
-    document.getElementById('total-processos').textContent = totalProcessos;
-    document.getElementById('processos-concluidos').textContent = processosConcluidos;
-    document.getElementById('processos-andamento').textContent = processosAndamento;
-    document.getElementById('processos-ano').textContent = processosAno;
-}
-
-function loadConfigurations() {
-    loadCadastradores();
-    loadAssuntos();
-}
-
-function loadCadastradores() {
-    const container = document.getElementById('cadastradores-list');
-    container.innerHTML = '';
-    
-    cadastradores.forEach((cadastrador, index) => {
-        const div = document.createElement('div');
-        div.className = 'config-item';
-        div.innerHTML = `
-            <span>${cadastrador}</span>
-            <div class="config-item-actions">
-                <button class="btn btn--sm btn--outline" onclick="editCadastrador(${index}, '${cadastrador}')">Editar</button>
-                <button class="btn btn--sm btn--outline" onclick="deleteCadastrador(${index})">Excluir</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function loadAssuntos() {
-    const container = document.getElementById('assuntos-list');
-    container.innerHTML = '';
-    
-    assuntos.forEach((assunto, index) => {
-        const div = document.createElement('div');
-        div.className = 'config-item';
-        div.innerHTML = `
-            <span>${assunto}</span>
-            <div class="config-item-actions">
-                <button class="btn btn--sm btn--outline" onclick="editAssunto(${index}, '${assunto}')">Editar</button>
-                <button class="btn btn--sm btn--outline" onclick="deleteAssunto(${index})">Excluir</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-async function handleCadastroSubmit(e) {
+document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const usuario = document.getElementById('login-usuario').value;
+    const pass = document.getElementById('login-password').value;
+    const email = USER_MAPPING[usuario];
     
-    const formData = new FormData(e.target);
-    const processNumber = formData.get('nprocesso').replace('/', '-');
-    
-    if (!formData.get('nprocesso') || !formData.get('assunto')) {
-        alert('Número do processo e assunto são obrigatórios!');
+    if (!email) {
+        document.getElementById('login-error').innerText = "Selecione um usuário válido.";
+        document.getElementById('login-error').classList.remove('hidden');
         return;
     }
+    
+    document.getElementById('login-btn').innerText = 'Aguarde...';
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        nav('dashboard');
+    } catch(err) {
+        document.getElementById('login-error').innerText = "Erro ao logar. Verifique a senha.";
+        document.getElementById('login-error').classList.remove('hidden');
+    } finally { document.getElementById('login-btn').innerText = 'Entrar'; }
+});
 
-    const processData = {
-        nProcesso: processNumber,
-        ctm: formData.get('ctm') || '',
-        assunto: formData.get('assunto'),
-        entrada: formData.get('entrada') || '',
-        vistoria: formData.get('vistoria') || '',
-        cadastrador: formData.get('cadastrador') || '',
-        primeiraVisita: formData.get('primeiraVisita') || '',
-        segundaVisita: formData.get('segundaVisita') || '',
-        terceiraVisita: formData.get('terceiraVisita') || '',
-        saida: formData.get('saida') || '',
-        destino: formData.get('destino') || '',
-        status: formData.get('status') || '',
-        obs: formData.get('obs') || '',
-        prioridade: 'nan'
+document.getElementById('btn-logout').addEventListener('click', () => { signOut(auth); nav('login'); });
+document.getElementById('btn-open-consulta').addEventListener('click', () => nav('consulta'));
+document.querySelectorAll('.btn-voltar-login').forEach(b => b.addEventListener('click', () => nav('login')));
+
+onAuthStateChanged(auth, user => {
+    if(user) { 
+        let nomeUsuario = user.email;
+        for (const [key, value] of Object.entries(USER_MAPPING)) {
+            if (value === user.email) { nomeUsuario = key; break; }
+        }
+        document.getElementById('user-info').innerText = `Usuário: ${nomeUsuario}`; 
+        nav('dashboard'); 
+    }
+});
+
+loadData();
+
+// =========================================================================
+// CARREGAMENTO DE DADOS (REALTIME)
+// =========================================================================
+function loadData() {
+    onValue(ref(db, 'Assuntos'), snap => { configData.Assuntos = snap.exists() ? snap.val() : []; populateSelects(); renderConfigListsIfActive(); });
+    onValue(ref(db, 'Cadastradores'), snap => { configData.Cadastradores = snap.exists() ? snap.val() : []; populateSelects(); renderConfigListsIfActive(); });
+    onValue(ref(db, 'Status'), snap => { if(snap.exists()) configData.Status = snap.val(); populateSelects(); renderConfigListsIfActive(); });
+    onValue(ref(db, 'Destinos'), snap => { if(snap.exists()) configData.Destinos = snap.val(); populateSelects(); renderConfigListsIfActive(); });
+    
+    onValue(ref(db, 'processos'), snap => {
+        processosData = [];
+        if(snap.exists()) {
+            const data = snap.val();
+            Object.keys(data).forEach(key => { if(data[key]) processosData.push({ id: key, ...data[key] }); });
+        }
+        populateDateMaskFilter();
+        if(document.getElementById('tabela-geral-screen').classList.contains('active')) renderTabelaGeral(false); 
+        if(document.getElementById('estatisticas-screen').classList.contains('active')) renderStats();
+    });
+}
+
+function renderConfigListsIfActive() {
+    if(document.getElementById('configuracoes-screen').classList.contains('active')) renderConfigLists();
+}
+
+function populateSelects() {
+    const arrAssuntos = configData.Assuntos || [];
+    const arrFuncs = configData.Cadastradores || [];
+    const arrStatus = configData.Status || [];
+    const arrDestinos = configData.Destinos || [];
+    
+    document.querySelectorAll('.dyn-assuntos').forEach(sel => {
+        let current = sel.value;
+        sel.innerHTML = '<option value="">Selecione...</option>' + arrAssuntos.map(a => `<option value="${a}">${a}</option>`).join('');
+        sel.value = current;
+    });
+    document.querySelectorAll('.dyn-funcionarios').forEach(sel => {
+        let current = sel.value;
+        sel.innerHTML = '<option value="">Selecione...</option>' + arrFuncs.map(a => `<option value="${a}">${a}</option>`).join('');
+        sel.value = current;
+    });
+    document.querySelectorAll('.dyn-status').forEach(sel => {
+        let current = sel.value;
+        sel.innerHTML = '<option value="">Selecione...</option>' + arrStatus.map(a => `<option value="${a}">${a}</option>`).join('');
+        sel.value = current;
+    });
+    document.querySelectorAll('.dyn-destinos').forEach(sel => {
+        let current = sel.value;
+        sel.innerHTML = '<option value="">Selecione...</option>' + arrDestinos.map(a => `<option value="${a}">${a}</option>`).join('');
+        sel.value = current;
+    });
+}
+
+function populateDateMaskFilter() {
+    const select = document.getElementById('col-filter-datamask');
+    if (!select) return;
+    let current = select.value;
+    let mesesAnosSet = new Set();
+    
+    processosData.forEach(p => {
+        if (p['Data Status']) {
+            let dt = formatDateBR(p['Data Status']);
+            let parts = dt.split('/');
+            if (parts.length === 3) mesesAnosSet.add(`${parts[1]}/${parts[2]}`);
+        }
+    });
+    
+    let options = Array.from(mesesAnosSet).sort((a, b) => {
+        let [mA, yA] = a.split('/');
+        let [mB, yB] = b.split('/');
+        return new Date(yB, mB - 1) - new Date(yA, mA - 1);
+    });
+
+    select.innerHTML = '<option value="">Filtrar Mês/Ano (Data Status)...</option>' + options.map(m => `<option value="${m}">${m}</option>`).join('');
+    select.value = current;
+}
+
+// =========================================================================
+// CONFIGURAÇÕES
+// =========================================================================
+function renderConfigLists() {
+    const gerarHtml = (arr, chave) => {
+        return (arr || []).map((item, idx) => `
+            <li class="flex justify-between items-center" style="padding: 6px 0; border-bottom: 1px solid var(--color-border);">
+                <span>${item}</span>
+                <button class="btn btn--error btn--sm" onclick="removerConfigItem('${chave}', ${idx})" style="padding: 2px 6px; font-size: 10px; background: red; color: white; border: none;">Excluir</button>
+            </li>
+        `).join('');
+    };
+
+    document.getElementById('lista-assuntos').innerHTML = gerarHtml(configData.Assuntos, 'Assuntos');
+    document.getElementById('lista-funcionarios').innerHTML = gerarHtml(configData.Cadastradores, 'Cadastradores');
+    document.getElementById('lista-status').innerHTML = gerarHtml(configData.Status, 'Status');
+    document.getElementById('lista-destinos').innerHTML = gerarHtml(configData.Destinos, 'Destinos');
+}
+
+window.addConfigItem = async function(chave, inputId) {
+    const valor = document.getElementById(inputId).value.trim();
+    if(!valor) return;
+    const novaLista = [...(configData[chave] || []), valor];
+    try {
+        await set(ref(db, chave), novaLista);
+        document.getElementById(inputId).value = '';
+    } catch(err) { alert("Erro ao salvar: " + err.message); }
+}
+
+window.removerConfigItem = async function(chave, index) {
+    if(!confirm('Tem certeza que deseja remover este item?')) return;
+    const novaLista = [...(configData[chave] || [])];
+    novaLista.splice(index, 1);
+    try { await set(ref(db, chave), novaLista); } 
+    catch(err) { alert("Erro ao remover: " + err.message); }
+}
+
+// =========================================================================
+// CADASTRO
+// =========================================================================
+document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btnSalvar = e.target.querySelector('button[type="submit"]');
+    btnSalvar.innerText = "Salvando...";
+    btnSalvar.disabled = true;
+
+    const rawCtm = document.getElementById('cad-ctm').value;
+    const ctmMascarado = maskCTM(rawCtm);
+    const entradaFmt = formatDateBR(document.getElementById('cad-entrada').value);
+    const DataStatusFmt = formatDateBR(document.getElementById('cad-data-status').value);
+
+    const diasCalculados = calcularDias(entradaFmt).toString();
+    const diasStatusCalculados = calcularDias(DataStatusFmt).toString();
+
+    const obj = {
+        "ctm": ctmMascarado,
+        "Nº PROC": formatProcessoParaDB(document.getElementById('cad-processo').value),
+        "assunto": document.getElementById('cad-assunto').value,
+        "entrada": entradaFmt,
+        "Vistoria": formatDateBR(document.getElementById('cad-vistoria').value),
+        "funcionários": document.getElementById('cad-funcionario').value,
+        "1ª VISITA": formatDateBR(document.getElementById('cad-v1').value),
+        "2ª VISITA": formatDateBR(document.getElementById('cad-v2').value),
+        "3ª VISITA": formatDateBR(document.getElementById('cad-v3').value),
+        "OBS": document.getElementById('cad-obs').value,
+        "dias": diasCalculados,
+        "Data Status": DataStatusFmt,
+        "dias status": DataStatusFmt ? diasStatusCalculados : "0",
+        "saída": formatDateBR(document.getElementById('cad-saida').value),
+        "destino": document.getElementById('cad-destino').value,
+        "status": document.getElementById('cad-status').value
     };
 
     try {
-        showLoading(true);
-        await database.ref(`processos/${processNumber}`).set(processData);
-        alert('Processo cadastrado com sucesso!');
+        await push(ref(db, 'processos'), obj);
+        alert('Cadastro realizado com sucesso!');
         e.target.reset();
-        
-        // Reload data
-        await loadInitialData();
-    } catch (error) {
-        console.error('Error saving process:', error);
-        alert('Erro ao salvar processo.');
+    } catch(err) { 
+        alert("Erro ao salvar: " + err.message); 
     } finally {
-        showLoading(false);
+        btnSalvar.innerText = "Salvar Nova Entrada";
+        btnSalvar.disabled = false;
+    }
+});
+
+// =========================================================================
+// TABELA GERAL (Base, Edição, Pesquisa)
+// =========================================================================
+function setupTabelaGeral(modo) {
+    currentMode = modo;
+    const titulos = { 'edicao': 'Edição de Processos', 'pesquisa': 'Pesquisar Processos', 'base': 'Base de Dados Completa' };
+    document.getElementById('titulo-tabela').innerText = titulos[modo];
+    
+    currentPage = 1; 
+    currentSortColumn = 'entrada';
+    currentSortDirection = 'desc';
+
+    document.getElementById('filtro-ctm').value = '';
+    document.getElementById('filtro-proc').value = '';
+    
+    document.getElementById('col-filter-assunto').value = '';
+    document.getElementById('col-filter-func').value = '';
+    document.getElementById('col-filter-status').value = '';
+    document.getElementById('col-filter-destino').value = '';
+    document.getElementById('col-filter-datamask').value = '';
+
+    if (modo === 'pesquisa') {
+        filteredList = [];
+        renderPaginaAtual();
+    } else {
+        renderTabelaGeral(true);
     }
 }
 
-async function searchProcess() {
-    const searchValue = document.getElementById('search-processo').value.replace('/', '-');
-    if (!searchValue) {
-        alert('Digite o número do processo para buscar.');
+document.getElementById('btn-filtrar-geral').addEventListener('click', () => renderTabelaGeral(true));
+['col-filter-assunto', 'col-filter-func', 'col-filter-status', 'col-filter-destino', 'col-filter-datamask'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => renderTabelaGeral(true));
+});
+
+function renderTabelaGeral(resetPage = false) {
+    if(resetPage) currentPage = 1;
+
+    const fCtm = normalizeCTM(document.getElementById('filtro-ctm').value);
+    const fProc = formatProcessoParaDB(document.getElementById('filtro-proc').value).toLowerCase().trim();
+
+    const colAss = document.getElementById('col-filter-assunto').value;
+    const colFunc = document.getElementById('col-filter-func').value;
+    const colStatus = document.getElementById('col-filter-status').value;
+    const colDest = document.getElementById('col-filter-destino').value;
+    const colDataMask = document.getElementById('col-filter-datamask').value;
+
+    if (currentMode === 'pesquisa' && !fCtm && !fProc && !colAss && !colFunc && !colStatus && !colDest && !colDataMask) {
+        filteredList = [];
+        renderPaginaAtual();
         return;
     }
 
-    try {
-        showLoading(true);
-        const snapshot = await database.ref(`processos/${searchValue}`).once('value');
-        const processo = snapshot.val();
+    filteredList = processosData.filter(p => {
+        let match = true;
+        const pCtm = normalizeCTM(p.ctm);
+        const pProc = (p['Nº PROC'] || '').toString().toLowerCase();
 
-        if (processo) {
-            populateEditForm(processo);
-            document.getElementById('edit-form-container').style.display = 'block';
-        } else {
-            alert('Processo não encontrado.');
-            document.getElementById('edit-form-container').style.display = 'none';
+        if(fCtm && !pCtm.includes(fCtm)) match = false;
+        if(fProc && !pProc.includes(fProc)) match = false;
+
+        if(colAss && p.assunto !== colAss) match = false;
+        if(colFunc && p['funcionários'] !== colFunc) match = false;
+        if(colStatus && p.status !== colStatus) match = false;
+        if(colDest && p.destino !== colDest) match = false;
+        if(colDataMask) {
+            let dt = formatDateBR(p['Data Status']);
+            if (!dt || !dt.endsWith(colDataMask)) match = false;
         }
-    } catch (error) {
-        console.error('Error searching process:', error);
-        alert('Erro ao buscar processo.');
-    } finally {
-        showLoading(false);
+        return match;
+    });
+
+    if (currentSortColumn) {
+        filteredList.sort((a, b) => {
+            let valA = a[currentSortColumn] || '';
+            let valB = b[currentSortColumn] || '';
+            
+            if (currentSortColumn.includes('data') || currentSortColumn === 'entrada' || currentSortColumn === 'Vistoria') {
+                valA = parseDateBR(valA) || new Date(0);
+                valB = parseDateBR(valB) || new Date(0);
+            } else if (currentSortColumn === 'dias' || currentSortColumn === 'dias status') {
+                valA = parseInt(valA) || 0;
+                valB = parseInt(valB) || 0;
+            } else {
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+            }
+
+            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    renderPaginaAtual();
+}
+
+window.ordenarColuna = function(colName) {
+    if (currentSortColumn === colName) {
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortColumn = colName;
+        currentSortDirection = 'asc';
+    }
+    renderTabelaGeral(false);
+}
+
+function renderPaginaAtual() {
+    const thead = document.getElementById('thead-geral');
+    const tbody = document.getElementById('tbody-geral');
+    
+    const totalItems = filteredList.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+    
+    if(currentPage > totalPages) currentPage = totalPages;
+    if(currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedItems = filteredList.slice(startIndex, startIndex + itemsPerPage);
+
+    const sortIndicator = (col) => currentSortColumn === col ? (currentSortDirection === 'asc' ? ' ▲' : ' ▼') : '';
+
+    if(currentMode === 'edicao') {
+        thead.innerHTML = `
+            <th onclick="ordenarColuna('ctm')" style="cursor:pointer">CTM${sortIndicator('ctm')}</th>
+            <th onclick="ordenarColuna('Nº PROC')" style="cursor:pointer">Nº Processo${sortIndicator('Nº PROC')}</th>
+            <th class="col-assunto" onclick="ordenarColuna('assunto')" style="cursor:pointer">Assunto${sortIndicator('assunto')}</th>
+            <th onclick="ordenarColuna('entrada')" style="cursor:pointer">Entrada${sortIndicator('entrada')}</th>
+            <th onclick="ordenarColuna('funcionários')" style="cursor:pointer">Funcionários${sortIndicator('funcionários')}</th>
+            <th>Ações</th>`;
+    } else if(currentMode === 'pesquisa') {
+        thead.innerHTML = `
+            <th onclick="ordenarColuna('ctm')" style="cursor:pointer">CTM${sortIndicator('ctm')}</th>
+            <th onclick="ordenarColuna('Nº PROC')" style="cursor:pointer">Nº Processo${sortIndicator('Nº PROC')}</th>
+            <th class="col-assunto" onclick="ordenarColuna('assunto')" style="cursor:pointer">Assunto${sortIndicator('assunto')}</th>
+            <th onclick="ordenarColuna('entrada')" style="cursor:pointer">Entrada${sortIndicator('entrada')}</th>
+            <th onclick="ordenarColuna('dias')" style="cursor:pointer">Dias${sortIndicator('dias')}</th>
+            <th onclick="ordenarColuna('funcionários')" style="cursor:pointer">Funcionário${sortIndicator('funcionários')}</th>
+            <th onclick="ordenarColuna('status')" style="cursor:pointer">Status${sortIndicator('status')}</th>
+            <th onclick="ordenarColuna('Data Status')" style="cursor:pointer">Data Status${sortIndicator('Data Status')}</th>
+            <th onclick="ordenarColuna('dias status')" style="cursor:pointer">Dias Status${sortIndicator('dias status')}</th>
+            <th onclick="ordenarColuna('destino')" style="cursor:pointer">Destino${sortIndicator('destino')}</th>
+            <th class="col-detalhes">Detalhes</th>`;
+    } else {
+        thead.innerHTML = `
+            <th onclick="ordenarColuna('ctm')" style="cursor:pointer">CTM${sortIndicator('ctm')}</th>
+            <th onclick="ordenarColuna('Nº PROC')" style="cursor:pointer">Nº Processo${sortIndicator('Nº PROC')}</th>
+            <th class="col-assunto" onclick="ordenarColuna('assunto')" style="cursor:pointer">Assunto${sortIndicator('assunto')}</th>
+            <th onclick="ordenarColuna('entrada')" style="cursor:pointer">Entrada${sortIndicator('entrada')}</th>
+            <th onclick="ordenarColuna('dias')" style="cursor:pointer">Dias${sortIndicator('dias')}</th>
+            <th onclick="ordenarColuna('funcionários')" style="cursor:pointer">Funcionário${sortIndicator('funcionários')}</th>
+            <th onclick="ordenarColuna('status')" style="cursor:pointer">Status${sortIndicator('status')}</th>
+            <th onclick="ordenarColuna('Data Status')" style="cursor:pointer">Data Status${sortIndicator('Data Status')}</th>
+            <th onclick="ordenarColuna('dias status')" style="cursor:pointer">Dias Status${sortIndicator('dias status')}</th>
+            <th onclick="ordenarColuna('destino')" style="cursor:pointer">Destino${sortIndicator('destino')}</th>
+            <th>Ações</th>`;
+    }
+
+    if (totalItems === 0 && currentMode === 'pesquisa') {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center">Preencha os filtros e clique em "Pesquisar/Filtrar" para exibir os resultados.</td></tr>`;
+        document.getElementById('page-info').innerText = `Página 1 de 1 (Total: 0 registros)`;
+        return;
+    }
+
+    tbody.innerHTML = paginatedItems.map(p => {
+        let dias = calcularDias(p.entrada);
+        let diasStatus = p['Data Status'] ? calcularDias(p['Data Status']) : 0;
+        let tr = '';
+        
+        if(currentMode === 'edicao') {
+            tr = `<td>${maskCTM(p.ctm)||''}</td>
+                  <td>${formatProcessoParaTela(p['Nº PROC']||'')}</td>
+                  <td class="col-assunto">${p.assunto||''}</td>
+                  <td>${formatDateBR(p.entrada)||''}</td>
+                  <td>${p['funcionários']||''}</td>
+                  <td><button class="btn btn--warning btn--sm" onclick="abrirEdicao('${p.id}')">Editar</button></td>`;
+        } else if (currentMode === 'pesquisa') {
+             tr = `<td>${maskCTM(p.ctm)||''}</td>
+                  <td>${formatProcessoParaTela(p['Nº PROC']||'')}</td>
+                  <td class="col-assunto">${p.assunto||''}</td>
+                  <td>${formatDateBR(p.entrada)||''}</td>
+                  <td>${dias}</td>
+                  <td>${p['funcionários']||''}</td>
+                  <td>${p.status||''}</td>
+                  <td>${formatDateBR(p['Data Status'])||''}</td>
+                  <td>${diasStatus}</td>
+                  <td>${p.destino||''}</td>
+                  <td class="col-detalhes">${p['OBS']||''}</td>`;
+        } else {
+            let acoes = `
+                <button class="btn btn--warning btn--sm" onclick="abrirEdicao('${p.id}')">Editar</button> 
+                <button class="btn btn--error btn--sm" style="background:red; color:white; border:none;" onclick="deletarProcesso('${p.id}')">Excluir</button>`;
+            
+            tr = `<td>${maskCTM(p.ctm)||''}</td>
+                  <td>${formatProcessoParaTela(p['Nº PROC']||'')}</td>
+                  <td class="col-assunto">${p.assunto||''}</td>
+                  <td>${formatDateBR(p.entrada)||''}</td>
+                  <td>${dias}</td>
+                  <td>${p['funcionários']||''}</td>
+                  <td>${p.status||''}</td>
+                  <td>${formatDateBR(p['Data Status'])||''}</td>
+                  <td>${diasStatus}</td>
+                  <td>${p.destino||''}</td>
+                  <td>${acoes}</td>`;
+        }
+        return `<tr>${tr}</tr>`;
+    }).join('');
+
+    document.getElementById('page-info').innerText = `Página ${currentPage} de ${totalPages} (Total: ${totalItems} registros)`;
+    document.getElementById('btn-prev-page').disabled = (currentPage === 1);
+    document.getElementById('btn-next-page').disabled = (currentPage === totalPages);
+}
+
+window.mudarPagina = function(direction) {
+    const totalPages = Math.ceil(filteredList.length / itemsPerPage) || 1;
+    currentPage += direction;
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    renderPaginaAtual();
+}
+
+// =========================================================================
+// EDIÇÃO E EXCLUSÃO
+// =========================================================================
+window.abrirEdicao = function(id) {
+    const p = processosData.find(x => x.id === id);
+    if(!p) return;
+    
+    const body = document.getElementById('modal-edicao-body');
+    
+    const selAssuntos = configData.Assuntos.map(a => `<option value="${a}" ${p.assunto === a ? 'selected' : ''}>${a}</option>`).join('');
+    const selFuncs = configData.Cadastradores.map(a => `<option value="${a}" ${p['funcionários'] === a ? 'selected' : ''}>${a}</option>`).join('');
+    const selStatus = configData.Status.map(a => `<option value="${a}" ${p.status === a ? 'selected' : ''}>${a}</option>`).join('');
+    const selDestinos = (configData.Destinos || []).map(a => `<option value="${a}" ${p.destino === a ? 'selected' : ''}>${a}</option>`).join('');
+
+    body.innerHTML = `
+        <div class="filters-row">
+            <div class="form-group"><label>CTM</label><input type="text" id="edit-ctm" class="form-control" value="${maskCTM(p.ctm)||''}"></div>
+            <div class="form-group"><label>Nº Processo</label><input type="text" id="edit-proc" class="form-control" value="${formatProcessoParaTela(p['Nº PROC']||'')}"></div>
+            <div class="form-group"><label>Assunto</label><select id="edit-assunto" class="form-control"><option value="">Selecione...</option>${selAssuntos}</select></div>
+            
+            <div class="form-group"><label>Entrada</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-entrada" class="form-control date-mask" value="${formatDateBR(p.entrada)||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-entrada').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            
+            <div class="form-group"><label>Funcionário</label><select id="edit-func" class="form-control"><option value="">Selecione...</option>${selFuncs}</select></div>
+            <div class="form-group"><label>Status</label><select id="edit-status" class="form-control"><option value="">Selecione...</option>${selStatus}</select></div>
+            
+            <div class="form-group"><label>Data Status</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-data-status" class="form-control date-mask" value="${formatDateBR(p['Data Status'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-data-status').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            <div class="form-group"><label>Vistoria</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-vist" class="form-control date-mask" value="${formatDateBR(p['Vistoria'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-vist').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            <div class="form-group"><label>1ª Vist</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-v1" class="form-control date-mask" value="${formatDateBR(p['1ª VISITA'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-v1').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            <div class="form-group"><label>2ª Vist</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-v2" class="form-control date-mask" value="${formatDateBR(p['2ª VISITA'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-v2').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            <div class="form-group"><label>3ª Vist</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-v3" class="form-control date-mask" value="${formatDateBR(p['3ª VISITA'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-v3').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+            <div class="form-group"><label>Data Saída</label>
+                <div class="flex gap-4">
+                    <input type="text" id="edit-saida" class="form-control date-mask" value="${formatDateBR(p['saída'])||''}" maxlength="10">
+                    <input type="date" class="form-control" style="width: 45px; padding: 0 4px;" onchange="document.getElementById('edit-saida').value = formatDateToBR(this.value)">
+                </div>
+            </div>
+
+            <div class="form-group"><label>Destino</label><select id="edit-destino" class="form-control"><option value="">Selecione...</option>${selDestinos}</select></div>
+        </div>
+        <div class="form-group mt-8">
+            <label>Observação</label>
+            <textarea id="edit-obs" class="form-control" rows="3">${p['OBS']||''}</textarea>
+        </div>
+    `;
+    document.getElementById('modal-edicao').classList.remove('hidden');
+    
+    document.getElementById('btn-salvar-edicao').onclick = async () => {
+        const btnSalvar = document.getElementById('btn-salvar-edicao');
+        btnSalvar.innerText = "Salvando...";
+        
+        const entradaFmt = formatDateBR(document.getElementById('edit-entrada').value);
+        const DataStatusFmt = formatDateBR(document.getElementById('edit-data-status').value);
+        const diasCalculados = calcularDias(entradaFmt).toString();
+        const diasStatusCalculados = calcularDias(DataStatusFmt).toString();
+
+        await update(ref(db, 'processos/' + id), {
+            "ctm": maskCTM(document.getElementById('edit-ctm').value),
+            "Nº PROC": formatProcessoParaDB(document.getElementById('edit-proc').value),
+            "assunto": document.getElementById('edit-assunto').value,
+            "entrada": entradaFmt,
+            "funcionários": document.getElementById('edit-func').value,
+            "status": document.getElementById('edit-status').value,
+            "Data Status": DataStatusFmt,
+            "dias status": DataStatusFmt ? diasStatusCalculados : "0",
+            "Vistoria": formatDateBR(document.getElementById('edit-vist').value),
+            "1ª VISITA": formatDateBR(document.getElementById('edit-v1').value),
+            "2ª VISITA": formatDateBR(document.getElementById('edit-v2').value),
+            "3ª VISITA": formatDateBR(document.getElementById('edit-v3').value),
+            "saída": formatDateBR(document.getElementById('edit-saida').value),
+            "destino": document.getElementById('edit-destino').value,
+            "OBS": document.getElementById('edit-obs').value,
+            "dias": diasCalculados
+        });
+        
+        btnSalvar.innerText = "Salvar Edição";
+        document.getElementById('modal-edicao').classList.add('hidden');
+    };
+}
+
+window.deletarProcesso = async function(id) {
+    if(confirm("Tem certeza que deseja excluir permanentemente esta entrada?")) {
+        await remove(ref(db, 'processos/' + id));
     }
 }
 
-function populateEditForm(processo) {
-    const editContainer = document.getElementById('edit-form-container');
-    editContainer.innerHTML = `
-        <form id="edit-form" class="process-form">
-            <input type="hidden" name="originalNumber" value="${processo.nProcesso}">
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Número do Processo</label>
-                    <input type="text" class="form-control" value="${processo.nProcesso.replace('-', '/')}" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">CTM</label>
-                    <input type="text" name="ctm" class="form-control" value="${processo.ctm || ''}">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Assunto</label>
-                    <select name="assunto" class="form-control" required>
-                        <option value="">Selecione um assunto</option>
-                        ${assuntos.map(a => `<option value="${a}" ${a === processo.assunto ? 'selected' : ''}>${a}</option>`).join('')}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Entrada</label>
-                    <input type="date" name="entrada" class="form-control" value="${processo.entrada || ''}">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Vistoria</label>
-                    <input type="date" name="vistoria" class="form-control" value="${processo.vistoria || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Cadastrador</label>
-                    <select name="cadastrador" class="form-control">
-                        <option value="">Selecione um cadastrador</option>
-                        ${cadastradores.map(c => `<option value="${c}" ${c === processo.cadastrador ? 'selected' : ''}>${c}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">1ª Visita</label>
-                    <input type="date" name="primeiraVisita" class="form-control" value="${processo.primeiraVisita || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">2ª Visita</label>
-                    <input type="date" name="segundaVisita" class="form-control" value="${processo.segundaVisita || ''}">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">3ª Visita</label>
-                    <input type="date" name="terceiraVisita" class="form-control" value="${processo.terceiraVisita || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Saída</label>
-                    <input type="date" name="saida" class="form-control" value="${processo.saida || ''}">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Destino</label>
-                    <input type="text" name="destino" class="form-control" value="${processo.destino || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-control">
-                        <option value="">Selecione o status</option>
-                        <option value="Concluído" ${processo.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
-                        <option value="Em tramitação" ${processo.status === 'Em tramitação' ? 'selected' : ''}>Em tramitação</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Observação</label>
-                <textarea name="obs" class="form-control" rows="4">${processo.obs || ''}</textarea>
-            </div>
-            
-            <button type="submit" class="btn btn--primary">Salvar Alterações</button>
-        </form>
-    `;
-
-    // Add submit handler
-    document.getElementById('edit-form').addEventListener('submit', handleEditSubmit);
+// =========================================================================
+// CONSULTA PÚBLICA & EXPANDIR LINHAS
+// =========================================================================
+window.toggleRowInfo = function(btn, id) {
+    const targetRow = document.getElementById('details-' + id);
+    if(targetRow.classList.contains('hidden')) {
+        targetRow.classList.remove('hidden');
+        btn.innerText = '-';
+    } else {
+        targetRow.classList.add('hidden');
+        btn.innerText = '+';
+    }
 }
 
-async function handleEditSubmit(e) {
-    e.preventDefault();
+document.getElementById('btn-consultar-publico').addEventListener('click', () => {
+    const fCtm = normalizeCTM(document.getElementById('consulta-ctm').value);
+    const fProc = formatProcessoParaDB(document.getElementById('consulta-processo').value).toLowerCase().trim();
+    const fFunc = document.getElementById('consulta-funcionario').value;
+    const tbody = document.getElementById('tbody-consulta-publica');
     
-    const formData = new FormData(e.target);
-    const originalNumber = formData.get('originalNumber');
+    if(!fCtm && !fProc && !fFunc) { alert("Preencha CTM, Processo ou selecione um Funcionário para consultar."); return; }
+
+    const res = processosData.filter(p => {
+        let match = false;
+        const pCtm = normalizeCTM(p.ctm);
+        const pProc = (p['Nº PROC'] || '').toString().toLowerCase();
+        
+        if(fCtm && pCtm.includes(fCtm)) match = true;
+        if(fProc && pProc.includes(fProc)) match = true;
+        if(fFunc && p['funcionários'] === fFunc) match = true;
+        return match;
+    });
+
+    if(res.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center">Nenhum processo encontrado.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = res.map(p => {
+        let dias = calcularDias(p.entrada);
+        let diasStatus = p['Data Status'] ? calcularDias(p['Data Status']) : 0;
+        
+        let linhaPrincipal = `<tr>
+            <td><button class="btn btn--primary btn--sm" onclick="toggleRowInfo(this, '${p.id}')">+</button></td>
+            <td>${maskCTM(p.ctm)||''}</td>
+            <td>${formatProcessoParaTela(p['Nº PROC']||'')}</td>
+            <td class="col-assunto">${p.assunto||''}</td>
+            <td>${formatDateBR(p.entrada)||''}</td>
+            <td>${p['funcionários']||''}</td>
+            <td>${p.status||''}</td>
+            <td>${formatDateBR(p['Data Status'])||''}</td>
+            <td>${diasStatus}</td>
+            <td>${p.destino||''}</td>
+            <td class="col-detalhes"><div style="white-space:normal; word-wrap:break-word;">${p['OBS']||''}</div></td>
+        </tr>`;
+
+        let linhaExpandida = `<tr class="details-row hidden" id="details-${p.id}">
+            <td colspan="11">
+                <div class="expanded-details">
+                    <h4>Informações Completas do Processo</h4>
+                    <div class="expanded-details-grid">
+                        <p><strong>CTM:</strong> ${maskCTM(p.ctm)||'--'}</p>
+                        <p><strong>Nº Processo:</strong> ${formatProcessoParaTela(p['Nº PROC'])||'--'}</p>
+                        <p><strong>Assunto:</strong> ${p.assunto||'--'}</p>
+                        <p><strong>Entrada:</strong> ${formatDateBR(p.entrada)||'--'} (${dias} dias)</p>
+                        <p><strong>Funcionário:</strong> ${p['funcionários']||'--'}</p>
+                        <p><strong>Status:</strong> ${p.status||'--'}</p>
+                        <p><strong>Data Status:</strong> ${formatDateBR(p['Data Status'])||'--'} (${diasStatus} dias)</p>
+                        <p><strong>Destino:</strong> ${p.destino||'--'}</p>
+                        <p><strong>Vistoria:</strong> ${formatDateBR(p['Vistoria'])||'--'}</p>
+                        <p><strong>1ª Vistoria:</strong> ${formatDateBR(p['1ª VISITA'])||'--'}</p>
+                        <p><strong>2ª Vistoria:</strong> ${formatDateBR(p['2ª VISITA'])||'--'}</p>
+                        <p><strong>3ª Vistoria:</strong> ${formatDateBR(p['3ª VISITA'])||'--'}</p>
+                        <p><strong>Saída:</strong> ${formatDateBR(p['saída'])||'--'}</p>
+                        <p style="grid-column: 1 / -1;"><strong>Observações:</strong> ${p['OBS']||'--'}</p>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+        
+        return linhaPrincipal + linhaExpandida;
+    }).join('');
+});
+
+// =========================================================================
+// ESTATÍSTICAS
+// =========================================================================
+document.getElementById('stat-funcionario').addEventListener('change', renderStats);
+document.getElementById('stat-assunto-filter').addEventListener('change', renderStats);
+
+function renderStats() {
+    if(!document.getElementById('estatisticas-screen').classList.contains('active')) return;
     
-    const processData = {
-        nProcesso: originalNumber,
-        ctm: formData.get('ctm') || '',
-        assunto: formData.get('assunto'),
-        entrada: formData.get('entrada') || '',
-        vistoria: formData.get('vistoria') || '',
-        cadastrador: formData.get('cadastrador') || '',
-        primeiraVisita: formData.get('primeiraVisita') || '',
-        segundaVisita: formData.get('segundaVisita') || '',
-        terceiraVisita: formData.get('terceiraVisita') || '',
-        saida: formData.get('saida') || '',
-        destino: formData.get('destino') || '',
-        status: formData.get('status') || '',
-        obs: formData.get('obs') || '',
-        prioridade: 'nan'
+    const now = new Date();
+    const currMonth = now.getMonth() + 1;
+    const currYear = now.getFullYear();
+
+    let totalEntradas = processosData.length;
+    let mensais = 0;
+    let concluidos = 0;
+    let concluidosMes = 0;
+    
+    let totalSetorAssuntoMes = {};
+    let totalSetorAssuntoAno = {};
+
+    processosData.forEach(p => {
+        const d = parseDateBR(p.entrada);
+        let isMes = d && (d.getMonth() + 1) === currMonth && d.getFullYear() === currYear;
+        let isAno = d && d.getFullYear() === currYear;
+        let isConcl = (p.status === 'Concluído');
+        
+        if(isMes) mensais++;
+        if(isConcl) concluidos++;
+        if(isConcl && isMes) concluidosMes++;
+        
+        if(!totalSetorAssuntoMes[p.assunto]) totalSetorAssuntoMes[p.assunto] = 0;
+        if(!totalSetorAssuntoAno[p.assunto]) totalSetorAssuntoAno[p.assunto] = 0;
+        
+        if(isMes) totalSetorAssuntoMes[p.assunto]++;
+        if(isAno) totalSetorAssuntoAno[p.assunto]++;
+    });
+
+    document.getElementById('st-total').innerText = totalEntradas;
+    document.getElementById('st-mensal').innerText = mensais;
+    document.getElementById('st-concl').innerText = concluidos;
+    document.getElementById('st-concl-mes').innerText = concluidosMes;
+    
+    // --- LÓGICA ESTATÍSTICAS FUNCIONÁRIO ---
+    const funcSel = document.getElementById('stat-funcionario').value;
+    const tbodyFunc = document.getElementById('tbody-stats-func');
+    tbodyFunc.innerHTML = '';
+    
+    if(funcSel) {
+        let assuntosMap = {};
+        configData.Assuntos.forEach(a => assuntosMap[a] = { qtd:0, mes:0, ano:0, cTotal:0, cMes:0, cAno:0 });
+        
+        processosData.forEach(p => {
+            if(p['funcionários'] === funcSel && assuntosMap[p.assunto]) {
+                const d = parseDateBR(p.entrada);
+                let isMes = d && (d.getMonth() + 1) === currMonth && d.getFullYear() === currYear;
+                let isAno = d && d.getFullYear() === currYear;
+                let isConcl = (p.status === 'Concluído');
+                
+                assuntosMap[p.assunto].qtd++;
+                if(isMes) assuntosMap[p.assunto].mes++;
+                if(isAno) assuntosMap[p.assunto].ano++;
+                if(isConcl) assuntosMap[p.assunto].cTotal++;
+                if(isConcl && isMes) assuntosMap[p.assunto].cMes++;
+                if(isConcl && isAno) assuntosMap[p.assunto].cAno++;
+            }
+        });
+        
+        let html = '';
+        let totais = { qtd:0, mes:0, ano:0, setorMes:0, setorAno:0, cTotal:0, cMes:0, cAno:0 };
+        
+        Object.keys(assuntosMap).forEach(k => {
+            if(assuntosMap[k].qtd > 0) {
+                let v = assuntosMap[k];
+                let sMes = totalSetorAssuntoMes[k] || 0;
+                let sAno = totalSetorAssuntoAno[k] || 0;
+                let pMes = sMes > 0 ? ((v.mes / sMes) * 100).toFixed(1) + '%' : '0%';
+                let pAno = sAno > 0 ? ((v.ano / sAno) * 100).toFixed(1) + '%' : '0%';
+                
+                totais.qtd += v.qtd;
+                totais.mes += v.mes;
+                totais.ano += v.ano;
+                totais.setorMes += sMes;
+                totais.setorAno += sAno;
+                totais.cTotal += v.cTotal;
+                totais.cMes += v.cMes;
+                totais.cAno += v.cAno;
+                
+                html += `<tr>
+                    <td>${k}</td><td>${v.qtd}</td><td>${v.mes}</td><td>${v.ano}</td>
+                    <td>${sMes}</td><td>${pMes}</td><td>${sAno}</td><td>${pAno}</td>
+                    <td>${v.cTotal}</td><td>${v.cMes}</td><td>${v.cAno}</td>
+                </tr>`;
+            }
+        });
+        
+        html += `<tr style="font-weight: bold; background-color: var(--color-bg-2);">
+            <td>TOTAL</td><td>${totais.qtd}</td><td>${totais.mes}</td><td>${totais.ano}</td>
+            <td>${totais.setorMes}</td><td>-</td><td>${totais.setorAno}</td><td>-</td>
+            <td>${totais.cTotal}</td><td>${totais.cMes}</td><td>${totais.cAno}</td>
+        </tr>`;
+        
+        tbodyFunc.innerHTML = html;
+    } else {
+        tbodyFunc.innerHTML = `<tr><td colspan="11" class="text-center">Selecione um funcionário para ver as estatísticas.</td></tr>`;
+    }
+
+    // --- LÓGICA ESTATÍSTICAS ASSUNTO ---
+    const assuntoSel = document.getElementById('stat-assunto-filter').value;
+    const tbodyAssunto = document.getElementById('tbody-stats-assunto');
+    tbodyAssunto.innerHTML = '';
+
+    if (assuntoSel) {
+        let funcsMap = {};
+        configData.Cadastradores.forEach(f => funcsMap[f] = { qtd:0, mes:0, ano:0, cTotal:0, cMes:0, cAno:0 });
+
+        processosData.forEach(p => {
+            if(p.assunto === assuntoSel && funcsMap[p['funcionários']]) {
+                const d = parseDateBR(p.entrada);
+                let isMes = d && (d.getMonth() + 1) === currMonth && d.getFullYear() === currYear;
+                let isAno = d && d.getFullYear() === currYear;
+                let isConcl = (p.status === 'Concluído');
+
+                funcsMap[p['funcionários']].qtd++;
+                if (isMes) funcsMap[p['funcionários']].mes++;
+                if (isAno) funcsMap[p['funcionários']].ano++;
+                if (isConcl) funcsMap[p['funcionários']].cTotal++;
+                if (isConcl && isMes) funcsMap[p['funcionários']].cMes++;
+                if (isConcl && isAno) funcsMap[p['funcionários']].cAno++;
+            }
+        });
+
+        let htmlAssunto = '';
+        let totaisAss = { qtd:0, mes:0, ano:0, cTotal:0, cMes:0, cAno:0 };
+
+        Object.keys(funcsMap).forEach(f => {
+            if (funcsMap[f].qtd > 0) {
+                let v = funcsMap[f];
+                
+                totaisAss.qtd += v.qtd;
+                totaisAss.mes += v.mes;
+                totaisAss.ano += v.ano;
+                totaisAss.cTotal += v.cTotal;
+                totaisAss.cMes += v.cMes;
+                totaisAss.cAno += v.cAno;
+
+                htmlAssunto += `<tr>
+                    <td>${f}</td><td>${v.qtd}</td><td>${v.mes}</td><td>${v.ano}</td>
+                    <td>${v.cTotal}</td><td>${v.cMes}</td><td>${v.cAno}</td>
+                </tr>`;
+            }
+        });
+
+        htmlAssunto += `<tr style="font-weight: bold; background-color: var(--color-bg-2);">
+            <td>TOTAL DA EQUIPE</td><td>${totaisAss.qtd}</td><td>${totaisAss.mes}</td><td>${totaisAss.ano}</td>
+            <td>${totaisAss.cTotal}</td><td>${totaisAss.cMes}</td><td>${totaisAss.cAno}</td>
+        </tr>`;
+
+        tbodyAssunto.innerHTML = htmlAssunto;
+    } else {
+        tbodyAssunto.innerHTML = `<tr><td colspan="7" class="text-center">Selecione um assunto acima para visualizar os dados por funcionário.</td></tr>`;
+    }
+    
+    renderCharts(currMonth, currYear);
+}
+
+// GRÁFICOS (Chart.js)
+function renderCharts(mes, ano) {
+    charts.forEach(c => c.destroy());
+    charts = [];
+    
+    let assCount = {};
+    let funcCount = {};
+    let funcConclCount = {};
+    
+    processosData.forEach(p => {
+        const d = parseDateBR(p.entrada);
+        let isMes = d && (d.getMonth() + 1) === mes && d.getFullYear() === ano;
+        
+        if(isMes && p.assunto) {
+            assCount[p.assunto] = (assCount[p.assunto]||0) + 1;
+        }
+        if(isMes && p['funcionários']) {
+            funcCount[p['funcionários']] = (funcCount[p['funcionários']]||0) + 1;
+        }
+        if(isMes && p.status === 'Concluído' && p['funcionários']) {
+            funcConclCount[p['funcionários']] = (funcConclCount[p['funcionários']]||0) + 1;
+        }
+    });
+
+    const sortTop6 = (obj) => Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0,6);
+    
+    const topAssuntos = sortTop6(assCount);
+    const topFuncs = sortTop6(funcCount);
+    const topFuncsConcl = sortTop6(funcConclCount);
+
+    const createChart = (id, label, dataArr, color) => {
+        const canvas = document.getElementById(id);
+        if(!canvas) return; 
+        const ctx = canvas.getContext('2d');
+        charts.push(new Chart(ctx, {
+            type: 'bar',
+            data: { 
+                labels: dataArr.map(d => d[0]), 
+                datasets: [{ label: label, data: dataArr.map(d => d[1]), backgroundColor: color }] 
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        }));
     };
 
-    try {
-        showLoading(true);
-        await database.ref(`processos/${originalNumber}`).set(processData);
-        alert('Processo atualizado com sucesso!');
-        
-        // Reload data
-        await loadInitialData();
-        document.getElementById('edit-form-container').style.display = 'none';
-        document.getElementById('search-processo').value = '';
-    } catch (error) {
-        console.error('Error updating process:', error);
-        alert('Erro ao atualizar processo.');
-    } finally {
-        showLoading(false);
-    }
+    createChart('chart1', 'Top Assuntos (Mês)', topAssuntos, '#32b8c6');
+    createChart('chart2', 'Entradas por Funcionário (Mês)', topFuncs, '#e68161');
+    createChart('chart3', 'Concluídos por Funcionário (Mês)', topFuncsConcl, '#22c55e');
 }
-
-async function consultProcess() {
-    const searchValue = document.getElementById('consulta-processo').value.replace('/', '-');
-    if (!searchValue) {
-        alert('Digite o número do processo para consultar.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        const snapshot = await database.ref(`processos/${searchValue}`).once('value');
-        const processo = snapshot.val();
-
-        const resultDiv = document.getElementById('consulta-result');
-        
-        if (processo) {
-            resultDiv.innerHTML = `
-                <h3>Processo: ${processo.nProcesso.replace('-', '/')}</h3>
-                <div class="process-info-grid">
-                    <div class="process-info-item">
-                        <div class="process-info-label">CTM</div>
-                        <div class="process-info-value">${processo.ctm || 'Não informado'}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Assunto</div>
-                        <div class="process-info-value">${processo.assunto || 'Não informado'}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Entrada</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.entrada)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Vistoria</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.vistoria)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Cadastrador</div>
-                        <div class="process-info-value">${processo.cadastrador || 'Não informado'}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">1ª Visita</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.primeiraVisita)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">2ª Visita</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.segundaVisita)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">3ª Visita</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.terceiraVisita)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Saída</div>
-                        <div class="process-info-value">${formatDateForDisplay(processo.saida)}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Destino</div>
-                        <div class="process-info-value">${processo.destino || 'Não informado'}</div>
-                    </div>
-                    <div class="process-info-item">
-                        <div class="process-info-label">Status</div>
-                        <div class="process-info-value">${processo.status || 'Não informado'}</div>
-                    </div>
-                    <div class="process-info-item" style="grid-column: 1 / -1;">
-                        <div class="process-info-label">Observação</div>
-                        <div class="process-info-value">${processo.obs || 'Não informado'}</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = '<p>Processo não encontrado.</p>';
-        }
-    } catch (error) {
-        console.error('Error consulting process:', error);
-        document.getElementById('consulta-result').innerHTML = '<p>Erro ao consultar processo.</p>';
-    } finally {
-        showLoading(false);
-    }
-}
-
-function applyFilters() {
-    const filterCadastrador = document.getElementById('filter-cadastrador').value;
-    const filterDataInicio = document.getElementById('filter-data-inicio').value;
-    const filterDataFim = document.getElementById('filter-data-fim').value;
-    const filterAssunto = document.getElementById('filter-assunto').value;
-
-    let filtered = Object.values(allProcesses);
-
-    if (filterCadastrador) {
-        filtered = filtered.filter(p => p.cadastrador === filterCadastrador);
-    }
-
-    if (filterAssunto) {
-        filtered = filtered.filter(p => p.assunto === filterAssunto);
-    }
-
-    if (filterDataInicio && filterDataFim) {
-        const startDate = new Date(filterDataInicio);
-        const endDate = new Date(filterDataFim);
-        filtered = filtered.filter(p => {
-            if (!p.entrada) return false;
-            const entradaDate = new Date(p.entrada);
-            return entradaDate >= startDate && entradaDate <= endDate;
-        });
-    }
-
-    filteredProcesses = filtered;
-    currentPage = 1;
-    displayProcessTable();
-}
-
-function displayProcessTable() {
-    const processes = filteredProcesses.length > 0 ? filteredProcesses : Object.values(allProcesses);
-    const totalItems = processes.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-    const currentItems = processes.slice(startIndex, endIndex);
-
-    // Update database info
-    document.getElementById('database-info').innerHTML = 
-        `Exibindo ${startIndex + 1} a ${endIndex} de ${totalItems} registros`;
-
-    // Create table
-    const tableContainer = document.getElementById('processes-table');
-    tableContainer.innerHTML = `
-        <table class="processes-table">
-            <thead>
-                <tr>
-                    <th>Nº Processo</th>
-                    <th>CTM</th>
-                    <th>Assunto</th>
-                    <th>Entrada</th>
-                    <th>Cadastrador</th>
-                    <th>Status</th>
-                    <th>Saída</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${currentItems.map(processo => `
-                    <tr>
-                        <td>${processo.nProcesso ? processo.nProcesso.replace('-', '/') : ''}</td>
-                        <td>${processo.ctm || ''}</td>
-                        <td>${processo.assunto || ''}</td>
-                        <td>${formatDateForDisplay(processo.entrada)}</td>
-                        <td>${processo.cadastrador || ''}</td>
-                        <td>${processo.status || ''}</td>
-                        <td>${formatDateForDisplay(processo.saida)}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-
-    // Update pagination
-    updatePagination(currentPage, totalPages);
-}
-
-function updatePagination(current, total) {
-    const container = document.getElementById('pagination');
-    container.innerHTML = `
-        <button class="pagination-btn" onclick="changePage(${current - 1})" ${current <= 1 ? 'disabled' : ''}>
-            Anterior
-        </button>
-        <span class="pagination-info">Página ${current} de ${total}</span>
-        <button class="pagination-btn" onclick="changePage(${current + 1})" ${current >= total ? 'disabled' : ''}>
-            Próxima
-        </button>
-    `;
-}
-
-function changePage(page) {
-    const processes = filteredProcesses.length > 0 ? filteredProcesses : Object.values(allProcesses);
-    const totalPages = Math.ceil(processes.length / itemsPerPage);
-    
-    if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        displayProcessTable();
-    }
-}
-
-// Configuration functions
-function showAddCadastradorModal() {
-    showModal('Adicionar Cadastrador', `
-        <div class="form-group">
-            <label class="form-label">Nome do Cadastrador</label>
-            <input type="text" id="novo-cadastrador" class="form-control" placeholder="Digite o nome">
-        </div>
-        <button class="btn btn--primary" onclick="addCadastrador()">Adicionar</button>
-    `);
-}
-
-function showAddAssuntoModal() {
-    showModal('Adicionar Assunto', `
-        <div class="form-group">
-            <label class="form-label">Nome do Assunto</label>
-            <input type="text" id="novo-assunto" class="form-control" placeholder="Digite o assunto">
-        </div>
-        <button class="btn btn--primary" onclick="addAssunto()">Adicionar</button>
-    `);
-}
-
-async function addCadastrador() {
-    const nome = document.getElementById('novo-cadastrador').value.trim();
-    if (!nome) {
-        alert('Digite o nome do cadastrador.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        cadastradores.push(nome);
-        await database.ref('Cadastradores').set(cadastradores);
-        closeModal();
-        loadCadastradores();
-        populateDropdowns();
-        alert('Cadastrador adicionado com sucesso!');
-    } catch (error) {
-        console.error('Error adding cadastrador:', error);
-        alert('Erro ao adicionar cadastrador.');
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function addAssunto() {
-    const nome = document.getElementById('novo-assunto').value.trim();
-    if (!nome) {
-        alert('Digite o nome do assunto.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        assuntos.push(nome);
-        await database.ref('Assuntos').set(assuntos);
-        closeModal();
-        loadAssuntos();
-        populateDropdowns();
-        alert('Assunto adicionado com sucesso!');
-    } catch (error) {
-        console.error('Error adding assunto:', error);
-        alert('Erro ao adicionar assunto.');
-    } finally {
-        showLoading(false);
-    }
-}
-
-function editCadastrador(index, current) {
-    showModal('Editar Cadastrador', `
-        <div class="form-group">
-            <label class="form-label">Nome do Cadastrador</label>
-            <input type="text" id="edit-cadastrador" class="form-control" value="${current}">
-        </div>
-        <button class="btn btn--primary" onclick="updateCadastrador(${index})">Salvar</button>
-    `);
-}
-
-function editAssunto(index, current) {
-    showModal('Editar Assunto', `
-        <div class="form-group">
-            <label class="form-label">Nome do Assunto</label>
-            <input type="text" id="edit-assunto" class="form-control" value="${current}">
-        </div>
-        <button class="btn btn--primary" onclick="updateAssunto(${index})">Salvar</button>
-    `);
-}
-
-async function updateCadastrador(index) {
-    const nome = document.getElementById('edit-cadastrador').value.trim();
-    if (!nome) {
-        alert('Digite o nome do cadastrador.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        cadastradores[index] = nome;
-        await database.ref('Cadastradores').set(cadastradores);
-        closeModal();
-        loadCadastradores();
-        populateDropdowns();
-        alert('Cadastrador atualizado com sucesso!');
-    } catch (error) {
-        console.error('Error updating cadastrador:', error);
-        alert('Erro ao atualizar cadastrador.');
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function updateAssunto(index) {
-    const nome = document.getElementById('edit-assunto').value.trim();
-    if (!nome) {
-        alert('Digite o nome do assunto.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        assuntos[index] = nome;
-        await database.ref('Assuntos').set(assuntos);
-        closeModal();
-        loadAssuntos();
-        populateDropdowns();
-        alert('Assunto atualizado com sucesso!');
-    } catch (error) {
-        console.error('Error updating assunto:', error);
-        alert('Erro ao atualizar assunto.');
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function deleteCadastrador(index) {
-    if (confirm('Tem certeza que deseja excluir este cadastrador?')) {
-        try {
-            showLoading(true);
-            cadastradores.splice(index, 1);
-            await database.ref('Cadastradores').set(cadastradores);
-            loadCadastradores();
-            populateDropdowns();
-            alert('Cadastrador excluído com sucesso!');
-        } catch (error) {
-            console.error('Error deleting cadastrador:', error);
-            alert('Erro ao excluir cadastrador.');
-        } finally {
-            showLoading(false);
-        }
-    }
-}
-
-async function deleteAssunto(index) {
-    if (confirm('Tem certeza que deseja excluir este assunto?')) {
-        try {
-            showLoading(true);
-            assuntos.splice(index, 1);
-            await database.ref('Assuntos').set(assuntos);
-            loadAssuntos();
-            populateDropdowns();
-            alert('Assunto excluído com sucesso!');
-        } catch (error) {
-            console.error('Error deleting assunto:', error);
-            alert('Erro ao excluir assunto.');
-        } finally {
-            showLoading(false);
-        }
-    }
-}
-
-// Reports functions
-function showRelatorioIndividual() {
-    document.getElementById('report-content').innerHTML = `
-        <button class="btn btn--outline mb-16" onclick="showReportsMenu()">← Voltar</button>
-        <h3>Relatório Individual</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Cadastrador</label>
-                <select id="rel-cadastrador" class="form-control">
-                    <option value="">Selecione um cadastrador</option>
-                    ${cadastradores.map(c => `<option value="${c}">${c}</option>`).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Inicial</label>
-                <input type="date" id="rel-data-inicio" class="form-control">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Final</label>
-                <input type="date" id="rel-data-fim" class="form-control">
-            </div>
-            <div class="form-group">
-                <button class="btn btn--primary" onclick="generateIndividualReport()">Gerar Relatório</button>
-            </div>
-        </div>
-        <div id="individual-report-result"></div>
-    `;
-}
-
-function showRelatorioCompleto() {
-    document.getElementById('report-content').innerHTML = `
-        <button class="btn btn--outline mb-16" onclick="showReportsMenu()">← Voltar</button>
-        <h3>Relatório Completo</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Data Inicial</label>
-                <input type="date" id="rel-comp-data-inicio" class="form-control">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Final</label>
-                <input type="date" id="rel-comp-data-fim" class="form-control">
-            </div>
-            <div class="form-group">
-                <button class="btn btn--primary" onclick="generateCompleteReport()">Gerar Relatório</button>
-            </div>
-        </div>
-        <div id="complete-report-result"></div>
-    `;
-}
-
-function showGraficos() {
-    document.getElementById('report-content').innerHTML = `
-        <button class="btn btn--outline mb-16" onclick="showReportsMenu()">← Voltar</button>
-        <h3>Gráficos</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Cadastrador</label>
-                <select id="chart-cadastrador" class="form-control">
-                    <option value="">Selecione um cadastrador</option>
-                    ${cadastradores.map(c => `<option value="${c}">${c}</option>`).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Inicial</label>
-                <input type="date" id="chart-data-inicio" class="form-control">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Final</label>
-                <input type="date" id="chart-data-fim" class="form-control">
-            </div>
-            <div class="form-group">
-                <button class="btn btn--primary" onclick="generateCharts()">Gerar Gráficos</button>
-            </div>
-        </div>
-        <div id="charts-container"></div>
-    `;
-}
-
-function showPorAssunto() {
-    document.getElementById('report-content').innerHTML = `
-        <button class="btn btn--outline mb-16" onclick="showReportsMenu()">← Voltar</button>
-        <h3>Relatório Por Assunto</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Data Inicial</label>
-                <input type="date" id="assunto-data-inicio" class="form-control">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data Final</label>
-                <input type="date" id="assunto-data-fim" class="form-control">
-            </div>
-            <div class="form-group">
-                <button class="btn btn--primary" onclick="generateSubjectReport()">Gerar Relatório</button>
-            </div>
-        </div>
-        <div id="subject-report-result"></div>
-    `;
-}
-
-function showReportsMenu() {
-    document.getElementById('report-content').innerHTML = '';
-}
-
-function generateIndividualReport() {
-    const cadastrador = document.getElementById('rel-cadastrador').value;
-    const dataInicio = document.getElementById('rel-data-inicio').value;
-    const dataFim = document.getElementById('rel-data-fim').value;
-
-    if (!cadastrador || !dataInicio || !dataFim) {
-        alert('Preencha todos os campos.');
-        return;
-    }
-
-    const startDate = new Date(dataInicio);
-    const endDate = new Date(dataFim);
-    const filteredProcesses = Object.values(allProcesses).filter(p => {
-        if (p.cadastrador !== cadastrador) return false;
-        if (!p.entrada) return false;
-        const entradaDate = new Date(p.entrada);
-        return entradaDate >= startDate && entradaDate <= endDate;
-    });
-
-    const reportData = {};
-    let totalConcluidos = 0;
-    let totalAbertos = 0;
-
-    assuntos.forEach(assunto => {
-        const processosAssunto = filteredProcesses.filter(p => p.assunto === assunto);
-        const concluidos = processosAssunto.filter(p => p.saida && p.saida.trim() !== '').length;
-        const abertos = processosAssunto.length - concluidos;
-        const total = processosAssunto.length;
-        const percentual = total > 0 ? Math.round((concluidos / total) * 100) : 0;
-
-        if (total > 0) {
-            reportData[assunto] = { concluidos, abertos, total, percentual };
-            totalConcluidos += concluidos;
-            totalAbertos += abertos;
-        }
-    });
-
-    const totalGeral = totalConcluidos + totalAbertos;
-    const produtividade = totalGeral > 0 ? Math.round((totalConcluidos / totalGeral) * 100) : 0;
-
-    const resultDiv = document.getElementById('individual-report-result');
-    resultDiv.innerHTML = `
-        <div class="mt-24">
-            <div class="mb-16">
-                <strong>Nome do Servidor:</strong> ${cadastrador}<br>
-                <strong>Período:</strong> ${formatDateForDisplay(dataInicio)} a ${formatDateForDisplay(dataFim)}<br>
-                <strong>Total de Processos:</strong> ${totalGeral}<br>
-                <strong>Produtividade:</strong> ${produtividade}%
-            </div>
-            
-            <table class="processes-table">
-                <thead>
-                    <tr>
-                        <th>Assunto</th>
-                        <th>Concluído</th>
-                        <th>Aberto</th>
-                        <th>Total</th>
-                        <th>%</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${Object.entries(reportData).map(([assunto, data]) => `
-                        <tr>
-                            <td>${assunto}</td>
-                            <td>${data.concluidos}</td>
-                            <td>${data.abertos}</td>
-                            <td>${data.total}</td>
-                            <td>${data.percentual}%</td>
-                        </tr>
-                    `).join('')}
-                    <tr style="font-weight: bold; background-color: var(--color-bg-2);">
-                        <td>TOTAL</td>
-                        <td>${totalConcluidos}</td>
-                        <td>${totalAbertos}</td>
-                        <td>${totalGeral}</td>
-                        <td>${produtividade}%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-function generateCompleteReport() {
-    const dataInicio = document.getElementById('rel-comp-data-inicio').value;
-    const dataFim = document.getElementById('rel-comp-data-fim').value;
-
-    if (!dataInicio || !dataFim) {
-        alert('Preencha as datas.');
-        return;
-    }
-
-    const startDate = new Date(dataInicio);
-    const endDate = new Date(dataFim);
-    const filteredProcesses = Object.values(allProcesses).filter(p => {
-        if (!p.entrada) return false;
-        const entradaDate = new Date(p.entrada);
-        return entradaDate >= startDate && entradaDate <= endDate;
-    });
-
-    const reportData = {};
-    let totalProcessos = 0;
-    let totalConcluidos = 0;
-    let totalAbertos = 0;
-
-    // Initialize data structure
-    assuntos.forEach(assunto => {
-        reportData[assunto] = {};
-        cadastradores.forEach(cadastrador => {
-            reportData[assunto][cadastrador] = { concluidos: 0, abertos: 0 };
-        });
-    });
-
-    // Fill data
-    filteredProcesses.forEach(p => {
-        if (p.assunto && p.cadastrador && reportData[p.assunto] && reportData[p.assunto][p.cadastrador]) {
-            totalProcessos++;
-            if (p.saida && p.saida.trim() !== '') {
-                reportData[p.assunto][p.cadastrador].concluidos++;
-                totalConcluidos++;
-            } else {
-                reportData[p.assunto][p.cadastrador].abertos++;
-                totalAbertos++;
-            }
-        }
-    });
-
-    const percentualConclusao = totalProcessos > 0 ? Math.round((totalConcluidos / totalProcessos) * 100) : 0;
-
-    const resultDiv = document.getElementById('complete-report-result');
-    resultDiv.innerHTML = `
-        <div class="mt-24">
-            <div class="mb-16">
-                <strong>Período:</strong> ${formatDateForDisplay(dataInicio)} a ${formatDateForDisplay(dataFim)}<br>
-                <strong>Número de Processos Totais:</strong> ${totalProcessos}<br>
-                <strong>Processos Concluídos:</strong> ${totalConcluidos}<br>
-                <strong>Processos em Aberto:</strong> ${totalAbertos}<br>
-                <strong>% de Conclusão:</strong> ${percentualConclusao}%
-            </div>
-            
-            <div style="overflow-x: auto;">
-                <table class="processes-table" style="min-width: 1000px;">
-                    <thead>
-                        <tr>
-                            <th>Assunto</th>
-                            ${cadastradores.map(c => `<th colspan="2">${c}</th>`).join('')}
-                        </tr>
-                        <tr>
-                            <th></th>
-                            ${cadastradores.map(c => `<th>Conc.</th><th>Aber.</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.entries(reportData).map(([assunto, cadastradorData]) => `
-                            <tr>
-                                <td>${assunto}</td>
-                                ${cadastradores.map(c => {
-                                    const data = cadastradorData[c];
-                                    return `<td>${data.concluidos}</td><td>${data.abertos}</td>`;
-                                }).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-}
-
-function generateCharts() {
-    const cadastrador = document.getElementById('chart-cadastrador').value;
-    const dataInicio = document.getElementById('chart-data-inicio').value;
-    const dataFim = document.getElementById('chart-data-fim').value;
-
-    if (!cadastrador || !dataInicio || !dataFim) {
-        alert('Preencha todos os campos.');
-        return;
-    }
-
-    const startDate = new Date(dataInicio);
-    const endDate = new Date(dataFim);
-    
-    // Individual pie chart
-    const individualProcesses = Object.values(allProcesses).filter(p => {
-        if (p.cadastrador !== cadastrador) return false;
-        if (!p.entrada) return false;
-        const entradaDate = new Date(p.entrada);
-        return entradaDate >= startDate && entradaDate <= endDate;
-    });
-
-    const concluidos = individualProcesses.filter(p => p.saida && p.saida.trim() !== '').length;
-    const abertos = individualProcesses.length - concluidos;
-
-    // All cadastradores bar chart data
-    const cadastradorStats = {};
-    cadastradores.forEach(c => {
-        cadastradorStats[c] = { concluidos: 0, abertos: 0 };
-    });
-
-    Object.values(allProcesses).forEach(p => {
-        if (!p.cadastrador || !p.entrada) return;
-        const entradaDate = new Date(p.entrada);
-        if (entradaDate >= startDate && entradaDate <= endDate && cadastradorStats[p.cadastrador]) {
-            if (p.saida && p.saida.trim() !== '') {
-                cadastradorStats[p.cadastrador].concluidos++;
-            } else {
-                cadastradorStats[p.cadastrador].abertos++;
-            }
-        }
-    });
-
-    const chartsContainer = document.getElementById('charts-container');
-    chartsContainer.innerHTML = `
-        <div class="chart-container" style="height: 300px;">
-            <h4 class="text-center">Processos de ${cadastrador}</h4>
-            <canvas id="pie-chart"></canvas>
-        </div>
-        
-        <div class="chart-container">
-            <h4 class="text-center">Processos Concluídos por Cadastrador</h4>
-            <canvas id="bar-chart-concluidos"></canvas>
-        </div>
-        
-        <div class="chart-container">
-            <h4 class="text-center">Processos em Aberto por Cadastrador</h4>
-            <canvas id="bar-chart-abertos"></canvas>
-        </div>
-    `;
-
-    // Create pie chart
-    const pieCtx = document.getElementById('pie-chart').getContext('2d');
-    new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Concluídos', 'Em Aberto'],
-            datasets: [{
-                data: [concluidos, abertos],
-                backgroundColor: ['#1FB8CD', '#FFC185']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-
-    // Create bar chart for concluded processes
-    const barCtx1 = document.getElementById('bar-chart-concluidos').getContext('2d');
-    new Chart(barCtx1, {
-        type: 'bar',
-        data: {
-            labels: cadastradores,
-            datasets: [{
-                label: 'Concluídos',
-                data: cadastradores.map(c => cadastradorStats[c].concluidos),
-                backgroundColor: '#1FB8CD'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Create bar chart for open processes
-    const barCtx2 = document.getElementById('bar-chart-abertos').getContext('2d');
-    new Chart(barCtx2, {
-        type: 'bar',
-        data: {
-            labels: cadastradores,
-            datasets: [{
-                label: 'Em Aberto',
-                data: cadastradores.map(c => cadastradorStats[c].abertos),
-                backgroundColor: '#FFC185'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-function generateSubjectReport() {
-    const dataInicio = document.getElementById('assunto-data-inicio').value;
-    const dataFim = document.getElementById('assunto-data-fim').value;
-
-    if (!dataInicio || !dataFim) {
-        alert('Preencha as datas.');
-        return;
-    }
-
-    const startDate = new Date(dataInicio);
-    const endDate = new Date(dataFim);
-    const filteredProcesses = Object.values(allProcesses).filter(p => {
-        if (!p.entrada) return false;
-        const entradaDate = new Date(p.entrada);
-        return entradaDate >= startDate && entradaDate <= endDate;
-    });
-
-    const subjectStats = {};
-    assuntos.forEach(assunto => {
-        subjectStats[assunto] = { total: 0, concluidos: 0, abertos: 0, percentual: 0 };
-    });
-
-    filteredProcesses.forEach(p => {
-        if (p.assunto && subjectStats[p.assunto]) {
-            subjectStats[p.assunto].total++;
-            if (p.saida && p.saida.trim() !== '') {
-                subjectStats[p.assunto].concluidos++;
-            } else {
-                subjectStats[p.assunto].abertos++;
-            }
-        }
-    });
-
-    // Calculate percentages
-    Object.keys(subjectStats).forEach(assunto => {
-        const data = subjectStats[assunto];
-        data.percentual = data.total > 0 ? Math.round((data.concluidos / data.total) * 100) : 0;
-    });
-
-    const resultDiv = document.getElementById('subject-report-result');
-    resultDiv.innerHTML = `
-        <div class="mt-24">
-            <h4>Relatório Por Assunto - ${formatDateForDisplay(dataInicio)} a ${formatDateForDisplay(dataFim)}</h4>
-            <table class="processes-table">
-                <thead>
-                    <tr>
-                        <th>Assunto</th>
-                        <th>Total</th>
-                        <th>Concluídos</th>
-                        <th>Em Aberto</th>
-                        <th>% Conclusão</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${Object.entries(subjectStats)
-                        .filter(([_, data]) => data.total > 0)
-                        .map(([assunto, data]) => `
-                            <tr>
-                                <td>${assunto}</td>
-                                <td>${data.total}</td>
-                                <td>${data.concluidos}</td>
-                                <td>${data.abertos}</td>
-                                <td>${data.percentual}%</td>
-                            </tr>
-                        `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-// Utility functions
-function showTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    // Remove active class from menu buttons
-    document.querySelectorAll('.menu-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // Show selected tab
-    const selectedTab = document.getElementById(`${tabName}-tab`);
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-
-    // Add active class to clicked menu button
-    const menuBtn = document.querySelector(`[data-tab="${tabName}"]`);
-    if (menuBtn) {
-        menuBtn.classList.add('active');
-    }
-
-    // Load data for specific tabs
-    if (tabName === 'basedados') {
-        displayProcessTable();
-    }
-}
-
-function showLoginScreen() {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('main-app').style.display = 'none';
-}
-
-function showMainApp() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
-}
-
-function showLoading(show) {
-    document.getElementById('loading').style.display = show ? 'flex' : 'none';
-}
-
-function showModal(title, content) {
-    document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-body').innerHTML = content;
-    document.getElementById('modal-overlay').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal-overlay').style.display = 'none';
-}
-
-function formatDateForDisplay(dateStr) {
-    if (!dateStr || dateStr.trim() === '') return 'Não informado';
-    
-    try {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('pt-BR');
-    } catch (error) {
-        return dateStr;
-    }
-}
-
-function logout() {
-    auth.signOut().then(() => {
-        currentUser = null;
-        currentUserRole = null;
-        showLoginScreen();
-    }).catch((error) => {
-        console.error('Error signing out:', error);
-    });
-}
-
-// Close modal when clicking outside
-document.getElementById('modal-overlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('modal-overlay')) {
-        closeModal();
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
